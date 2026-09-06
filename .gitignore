@@ -20,4 +20,44 @@ coverage/
 /.pio/
 /firmware/status-display/.pio/
 /candidate.pptx
-/deliverables/Truss-Pitch.pptx
+/deliverables/
+
+# Additional local credentials (keep shareable example files)
+/config/*.key
+/config/*.pem
+/config/tls/
+!.env.*.example
+/.claude/settings.local.json
+
+# Python packaging and additional caches
+/venv/
+/build/
+/dist/
+.mypy_cache/
+.tox/
+.nox/
+
+# Dependencies and build caches at any package level
+node_modules/
+.vite/
+
+# Test reports and logs
+htmlcov/
+.coverage
+.coverage.*
+playwright-report/
+test-results/
+junit.xml
+*.log
+
+# Private presentation working files and generated chart workbooks
+/.codex-finalizer/
+/.chart-data-*/
+
+# Operating-system and editor temporary files
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+*~
