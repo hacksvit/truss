@@ -142,7 +142,10 @@ export default function SiteScene({onMode}:{onMode?:(m:'overview'|'explore')=>vo
     e.preventDefault();
     firstPerson=!firstPerson;
     // keydown counts as a user gesture, so the lock request is allowed here
-    if(firstPerson) renderer.domElement.requestPointerLock?.();
+    if(firstPerson){
+     const rq=renderer.domElement.requestPointerLock?.() as unknown;
+     if(rq&&typeof (rq as Promise<void>).catch==='function') (rq as Promise<void>).catch(()=>{});
+    }
     else if(document.pointerLockElement) document.exitPointerLock?.();
     modeCb.current?.(mode);
     return;
@@ -194,11 +197,13 @@ export default function SiteScene({onMode}:{onMode?:(m:'overview'|'explore')=>vo
    targetY=nx*0.22; targetX=Math.max(-.28,Math.min(.42,0.14+ny*0.15));
   };
 
+  let wasLocked=false;
   const onLockChange=()=>{
    locked=document.pointerLockElement===renderer.domElement;
-   // if the user escapes the lock, drop back out of first person so the
-   // controls on screen still match what the mouse actually does
-   if(!locked&&firstPerson){ firstPerson=false; modeCb.current?.(mode); }
+   // only when a lock we actually held is released — a refused request also
+   // reports a null element, and that must not kick us out of first person
+   if(wasLocked&&!locked&&firstPerson){ firstPerson=false; modeCb.current?.(mode); }
+   wasLocked=locked;
   };
   const onRawMove=(e:MouseEvent)=>{
    if(!locked) return;
