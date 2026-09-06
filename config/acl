@@ -1,0 +1,166 @@
+# Owner M3. Credentials must use these usernames; member/plant users below.
+user coordinator
+topic read truss/v1/site/+/member/+/status
+topic read truss/v1/site/+/member/+/offer
+topic read truss/v1/site/+/member/+/lease/request
+topic read truss/v1/site/+/member/+/lease/ack
+topic read truss/v1/site/+/member/+/meter
+topic read truss/v1/site/+/event/capacity
+topic write truss/v1/site/+/member/+/lease
+topic write truss/v1/site/+/coordinator/status
+topic write truss/v1/site/+/plan
+
+user evidence
+topic read truss/v1/site/#
+
+user api-control
+topic write truss/v1/site/+/event/capacity
+topic write truss/v1/site/+/member/+/policy
+
+# Member-specific sections are appended below by the checked-in config generator
+# during this build; this file contains no broker administrator credential.
+
+user member-a
+topic write truss/v1/site/hostel-demo/member/member-a/status
+topic write truss/v1/site/hostel-demo/member/member-a/offer
+topic write truss/v1/site/hostel-demo/member/member-a/lease/request
+topic write truss/v1/site/hostel-demo/member/member-a/lease/ack
+topic write truss/v1/site/hostel-demo/member/member-a/plant/bind
+topic write truss/v1/site/hostel-demo/member/member-a/plant/ceiling
+topic write truss/v1/site/hostel-demo/member/member-a/device/+/command
+topic write truss/v1/site/hostel-demo/member/member-a/policy/ack
+topic read truss/v1/site/hostel-demo/member/member-a/lease
+topic read truss/v1/site/hostel-demo/member/member-a/policy
+topic read truss/v1/site/hostel-demo/member/member-a/plant/status
+topic read truss/v1/site/hostel-demo/member/member-a/plant/ack
+topic read truss/v1/site/hostel-demo/member/member-a/meter
+topic read truss/v1/site/hostel-demo/member/member-a/device/+/discovery
+topic read truss/v1/site/hostel-demo/member/member-a/device/+/telemetry
+topic read truss/v1/site/hostel-demo/member/member-a/device/+/ack
+
+user plant-a
+topic write truss/v1/site/hostel-demo/member/member-a/plant/status
+topic write truss/v1/site/hostel-demo/member/member-a/plant/ack
+topic write truss/v1/site/hostel-demo/member/member-a/meter
+topic write truss/v1/site/hostel-demo/member/member-a/device/+/discovery
+topic write truss/v1/site/hostel-demo/member/member-a/device/+/telemetry
+topic write truss/v1/site/hostel-demo/member/member-a/device/+/ack
+topic read truss/v1/site/hostel-demo/member/member-a/plant/bind
+topic read truss/v1/site/hostel-demo/member/member-a/plant/ceiling
+topic read truss/v1/site/hostel-demo/member/member-a/device/+/command
+
+user member-b
+topic write truss/v1/site/hostel-demo/member/member-b/status
+topic write truss/v1/site/hostel-demo/member/member-b/offer
+topic write truss/v1/site/hostel-demo/member/member-b/lease/request
+topic write truss/v1/site/hostel-demo/member/member-b/lease/ack
+topic write truss/v1/site/hostel-demo/member/member-b/plant/bind
+topic write truss/v1/site/hostel-demo/member/member-b/plant/ceiling
+topic write truss/v1/site/hostel-demo/member/member-b/device/+/command
+topic write truss/v1/site/hostel-demo/member/member-b/policy/ack
+topic read truss/v1/site/hostel-demo/member/member-b/lease
+topic read truss/v1/site/hostel-demo/member/member-b/policy
+topic read truss/v1/site/hostel-demo/member/member-b/plant/status
+topic read truss/v1/site/hostel-demo/member/member-b/plant/ack
+topic read truss/v1/site/hostel-demo/member/member-b/meter
+topic read truss/v1/site/hostel-demo/member/member-b/device/+/discovery
+topic read truss/v1/site/hostel-demo/member/member-b/device/+/telemetry
+topic read truss/v1/site/hostel-demo/member/member-b/device/+/ack
+
+user plant-b
+topic write truss/v1/site/hostel-demo/member/member-b/plant/status
+topic write truss/v1/site/hostel-demo/member/member-b/plant/ack
+topic write truss/v1/site/hostel-demo/member/member-b/meter
+topic write truss/v1/site/hostel-demo/member/member-b/device/+/discovery
+topic write truss/v1/site/hostel-demo/member/member-b/device/+/telemetry
+topic write truss/v1/site/hostel-demo/member/member-b/device/+/ack
+topic read truss/v1/site/hostel-demo/member/member-b/plant/bind
+topic read truss/v1/site/hostel-demo/member/member-b/plant/ceiling
+topic read truss/v1/site/hostel-demo/member/member-b/device/+/command
+
+user member-c
+topic write truss/v1/site/hostel-demo/member/member-c/status
+topic write truss/v1/site/hostel-demo/member/member-c/offer
+topic write truss/v1/site/hostel-demo/member/member-c/lease/request
+topic write truss/v1/site/hostel-demo/member/member-c/lease/ack
+topic write truss/v1/site/hostel-demo/member/member-c/plant/bind
+topic write truss/v1/site/hostel-demo/member/member-c/plant/ceiling
+topic write truss/v1/site/hostel-demo/member/member-c/device/+/command
+topic write truss/v1/site/hostel-demo/member/member-c/policy/ack
+topic read truss/v1/site/hostel-demo/member/member-c/lease
+topic read truss/v1/site/hostel-demo/member/member-c/policy
+topic read truss/v1/site/hostel-demo/member/member-c/plant/status
+topic read truss/v1/site/hostel-demo/member/member-c/plant/ack
+topic read truss/v1/site/hostel-demo/member/member-c/meter
+topic read truss/v1/site/hostel-demo/member/member-c/device/+/discovery
+topic read truss/v1/site/hostel-demo/member/member-c/device/+/telemetry
+topic read truss/v1/site/hostel-demo/member/member-c/device/+/ack
+
+user plant-c
+topic write truss/v1/site/hostel-demo/member/member-c/plant/status
+topic write truss/v1/site/hostel-demo/member/member-c/plant/ack
+topic write truss/v1/site/hostel-demo/member/member-c/meter
+topic write truss/v1/site/hostel-demo/member/member-c/device/+/discovery
+topic write truss/v1/site/hostel-demo/member/member-c/device/+/telemetry
+topic write truss/v1/site/hostel-demo/member/member-c/device/+/ack
+topic read truss/v1/site/hostel-demo/member/member-c/plant/bind
+topic read truss/v1/site/hostel-demo/member/member-c/plant/ceiling
+topic read truss/v1/site/hostel-demo/member/member-c/device/+/command
+
+user member-d
+topic write truss/v1/site/hostel-demo/member/member-d/status
+topic write truss/v1/site/hostel-demo/member/member-d/offer
+topic write truss/v1/site/hostel-demo/member/member-d/lease/request
+topic write truss/v1/site/hostel-demo/member/member-d/lease/ack
+topic write truss/v1/site/hostel-demo/member/member-d/plant/bind
+topic write truss/v1/site/hostel-demo/member/member-d/plant/ceiling
+topic write truss/v1/site/hostel-demo/member/member-d/device/+/command
+topic write truss/v1/site/hostel-demo/member/member-d/policy/ack
+topic read truss/v1/site/hostel-demo/member/member-d/lease
+topic read truss/v1/site/hostel-demo/member/member-d/policy
+topic read truss/v1/site/hostel-demo/member/member-d/plant/status
+topic read truss/v1/site/hostel-demo/member/member-d/plant/ack
+topic read truss/v1/site/hostel-demo/member/member-d/meter
+topic read truss/v1/site/hostel-demo/member/member-d/device/+/discovery
+topic read truss/v1/site/hostel-demo/member/member-d/device/+/telemetry
+topic read truss/v1/site/hostel-demo/member/member-d/device/+/ack
+
+user plant-d
+topic write truss/v1/site/hostel-demo/member/member-d/plant/status
+topic write truss/v1/site/hostel-demo/member/member-d/plant/ack
+topic write truss/v1/site/hostel-demo/member/member-d/meter
+topic write truss/v1/site/hostel-demo/member/member-d/device/+/discovery
+topic write truss/v1/site/hostel-demo/member/member-d/device/+/telemetry
+topic write truss/v1/site/hostel-demo/member/member-d/device/+/ack
+topic read truss/v1/site/hostel-demo/member/member-d/plant/bind
+topic read truss/v1/site/hostel-demo/member/member-d/plant/ceiling
+topic read truss/v1/site/hostel-demo/member/member-d/device/+/command
+
+user member-e
+topic write truss/v1/site/hostel-demo/member/member-e/status
+topic write truss/v1/site/hostel-demo/member/member-e/offer
+topic write truss/v1/site/hostel-demo/member/member-e/lease/request
+topic write truss/v1/site/hostel-demo/member/member-e/lease/ack
+topic write truss/v1/site/hostel-demo/member/member-e/plant/bind
+topic write truss/v1/site/hostel-demo/member/member-e/plant/ceiling
+topic write truss/v1/site/hostel-demo/member/member-e/device/+/command
+topic write truss/v1/site/hostel-demo/member/member-e/policy/ack
+topic read truss/v1/site/hostel-demo/member/member-e/lease
+topic read truss/v1/site/hostel-demo/member/member-e/policy
+topic read truss/v1/site/hostel-demo/member/member-e/plant/status
+topic read truss/v1/site/hostel-demo/member/member-e/plant/ack
+topic read truss/v1/site/hostel-demo/member/member-e/meter
+topic read truss/v1/site/hostel-demo/member/member-e/device/+/discovery
+topic read truss/v1/site/hostel-demo/member/member-e/device/+/telemetry
+topic read truss/v1/site/hostel-demo/member/member-e/device/+/ack
+
+user plant-e
+topic write truss/v1/site/hostel-demo/member/member-e/plant/status
+topic write truss/v1/site/hostel-demo/member/member-e/plant/ack
+topic write truss/v1/site/hostel-demo/member/member-e/meter
+topic write truss/v1/site/hostel-demo/member/member-e/device/+/discovery
+topic write truss/v1/site/hostel-demo/member/member-e/device/+/telemetry
+topic write truss/v1/site/hostel-demo/member/member-e/device/+/ack
+topic read truss/v1/site/hostel-demo/member/member-e/plant/bind
+topic read truss/v1/site/hostel-demo/member/member-e/plant/ceiling
+topic read truss/v1/site/hostel-demo/member/member-e/device/+/command

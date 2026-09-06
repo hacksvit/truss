@@ -130,7 +130,7 @@ Baseline policy: `0 ≤ f_i ≤ firm_i ≤ useful_i ≤ p_i`. All are **total wa
 
 Default at hour 6: equal-surplus water-filling, all weights 1. Debt data remains observable. Optional by hour 18: bounded weight `w_i = 1 + clamp(D_i / S, 0, 1)`, `S=10 Wh` for the accelerated demonstration, marked as a scenario policy parameter. This illustrative scale is not empirically tuned household policy.
 
-Replace member-authoritative accumulated unmet-demand debt with coordinator-authoritative **service deficit**. At each completed interval of duration Δ hours, calculate equal-surplus reference allocation `e_i` from that interval's validated snapshot. Let `a_i` be coordinator-accounted flexible authorisation actually offered for use during the interval, conservatively retaining old grants until possible expiry. In the ledger, use surplus rates, not total watts:
+Replace member-authoritative accumulated unmet-demand debt with coordinator-authoritative **service deficit**. At each completed interval of duration Δ hours, calculate equal-surplus reference allocation `e_i` from that interval's validated snapshot. Let `a_i = R_i − f_i` be the coordinator's conservative possible flexible authority during the interval; split intervals whenever exposure changes. Old grants remain counted until their conservative release. This can overstate usable authorisation when messages are lost; it intentionally does not award extra debt for unverifiable delivery failures. In the ledger, use surplus rates, not total watts:
 
 `D_i(next) = clamp(D_i + ((e_i−f_i) − a_i) × Δ, 0, Dmax)`; choose `Dmax=2S` for the scenario.
 

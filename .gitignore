@@ -1,0 +1,19 @@
+# Local explanations and machine state
+/pleaseread.md
+/.venv/
+/runtime/
+/config/passwords
+/config/*.local.*
+/web/node_modules/
+/web/dist/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
+*.egg-info/
+.env
+.env.*
+!.env.example
+coverage/
+*.tsbuildinfo

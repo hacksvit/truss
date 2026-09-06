@@ -1,0 +1,1 @@
+export default function BoundaryBanner(){return <aside className="boundary"><span className="badge">MOCK WORKSPACE</span><span>Illustrated behaviour for frontend development. Live MQTT integration is not connected.</span></aside>;}

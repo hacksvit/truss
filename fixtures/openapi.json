@@ -1,0 +1,2173 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Truss operator API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/state": {
+      "get": {
+        "summary": "State",
+        "operationId": "state_api_v1_state_get",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "live",
+              "title": "Source"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cap": {
+      "post": {
+        "summary": "Cap",
+        "operationId": "cap_api_v1_cap_post",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chaos": {
+      "post": {
+        "summary": "Chaos",
+        "operationId": "chaos_api_v1_chaos_post",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChaosRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/operations/{operation_id}": {
+      "get": {
+        "summary": "Operation",
+        "operationId": "operation_api_v1_operations__operation_id__get",
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Operation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "summary": "Events",
+        "operationId": "events_api_v1_events_get",
+        "parameters": [
+          {
+            "name": "after_seq",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "After Seq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lab/benchmark": {
+      "post": {
+        "summary": "Lab",
+        "operationId": "lab_api_v1_lab_benchmark_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{unimplemented}": {
+      "post": {
+        "summary": "Unsupported",
+        "operationId": "unsupported_api_v1__unimplemented__post",
+        "parameters": [
+          {
+            "name": "unimplemented",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unimplemented"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{route}": {
+      "get": {
+        "summary": "Frontend",
+        "operationId": "frontend__route__get",
+        "parameters": [
+          {
+            "name": "route",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Route"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Basis": {
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Snapshot Id"
+          },
+          "policy_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Policy Hash"
+          },
+          "registry_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Registry Revision"
+          },
+          "cap_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Cap Revision"
+          },
+          "cap_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Cap W"
+          },
+          "measurement_reserve_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Measurement Reserve W"
+          },
+          "external_bound_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "External Bound W"
+          },
+          "baseline_sum_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Baseline Sum W"
+          },
+          "surplus_pool_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Surplus Pool W"
+          },
+          "rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Rule"
+          },
+          "debt_scale_wh": {
+            "type": "number",
+            "maximum": 1000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Debt Scale Wh"
+          },
+          "weight_cap": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 2.0,
+            "title": "Weight Cap"
+          },
+          "member_floor_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Member Floor W"
+          },
+          "member_useful_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Member Useful W"
+          },
+          "member_debt_wh": {
+            "type": "number",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Member Debt Wh"
+          },
+          "member_weight": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 1.0,
+            "title": "Member Weight"
+          },
+          "proposed_budget_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Proposed Budget W"
+          },
+          "issued_budget_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Issued Budget W"
+          },
+          "reservation_before_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Reservation Before W"
+          },
+          "reservation_after_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Reservation After W"
+          },
+          "total_exposure_after_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Total Exposure After W"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "renewal",
+              "cap_change",
+              "capacity_exhausted",
+              "baseline_only",
+              "stale_offer",
+              "policy_conflict",
+              "recovery",
+              "member_budget_exceeded",
+              "min_run",
+              "deadline_missed",
+              "old_version",
+              "wrong_identity",
+              "wrong_boot",
+              "wrong_request",
+              "wrong_registry",
+              "expired",
+              "duplicate",
+              "invalid_amount",
+              "enforcer_fault",
+              "manual_priority",
+              "simulated_fault",
+              "validator_veto"
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "snapshot_id",
+          "policy_hash",
+          "registry_revision",
+          "cap_revision",
+          "cap_w",
+          "measurement_reserve_w",
+          "external_bound_w",
+          "baseline_sum_w",
+          "surplus_pool_w",
+          "rule",
+          "debt_scale_wh",
+          "weight_cap",
+          "member_floor_w",
+          "member_useful_w",
+          "member_debt_wh",
+          "member_weight",
+          "proposed_budget_w",
+          "issued_budget_w",
+          "reservation_before_w",
+          "reservation_after_w",
+          "total_exposure_after_w",
+          "reason"
+        ],
+        "title": "Basis"
+      },
+      "BenchmarkResult": {
+        "properties": {
+          "members": {
+            "type": "integer",
+            "title": "Members"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Seed"
+          },
+          "samples_ms": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Samples Ms"
+          },
+          "complete": {
+            "type": "boolean",
+            "title": "Complete"
+          },
+          "median_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Ms"
+          },
+          "p95_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P95 Ms"
+          },
+          "python": {
+            "type": "string",
+            "title": "Python"
+          },
+          "os": {
+            "type": "string",
+            "title": "Os"
+          },
+          "timer": {
+            "type": "string",
+            "title": "Timer"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "warmups": {
+            "type": "integer",
+            "title": "Warmups"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "members",
+          "seed",
+          "samples_ms",
+          "complete",
+          "median_ms",
+          "p95_ms",
+          "python",
+          "os",
+          "timer",
+          "scope",
+          "warmups"
+        ],
+        "title": "BenchmarkResult"
+      },
+      "CapRequest": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "expected_control_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Expected Control Revision"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "mock",
+              "replay"
+            ],
+            "title": "Source"
+          },
+          "watts": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Watts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "expected_control_revision",
+          "source",
+          "watts"
+        ],
+        "title": "CapRequest"
+      },
+      "Capabilities": {
+        "properties": {
+          "protect": {
+            "type": "boolean",
+            "title": "Protect",
+            "default": false
+          },
+          "debt_weighting": {
+            "type": "boolean",
+            "title": "Debt Weighting",
+            "default": false
+          },
+          "chaos": {
+            "type": "boolean",
+            "title": "Chaos",
+            "default": false
+          },
+          "replay": {
+            "type": "boolean",
+            "title": "Replay",
+            "default": false
+          },
+          "lab": {
+            "type": "boolean",
+            "title": "Lab",
+            "default": false
+          },
+          "max_live_members": {
+            "type": "integer",
+            "title": "Max Live Members",
+            "default": 5
+          },
+          "max_lab_members": {
+            "type": "integer",
+            "title": "Max Lab Members",
+            "default": 5000
+          },
+          "cpsat": {
+            "type": "boolean",
+            "const": false,
+            "title": "Cpsat",
+            "default": false
+          },
+          "hardware": {
+            "type": "boolean",
+            "const": false,
+            "title": "Hardware",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Capabilities"
+      },
+      "ChaosRequest": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "expected_control_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Expected Control Revision"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "mock",
+              "replay"
+            ],
+            "title": "Source"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "kill_coordinator",
+              "restart_coordinator",
+              "stale_member",
+              "clear_faults",
+              "kill_member",
+              "restart_member",
+              "kill_broker",
+              "restart_broker"
+            ],
+            "title": "Action"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "expected_control_revision",
+          "source",
+          "action",
+          "member_id"
+        ],
+        "title": "ChaosRequest"
+      },
+      "DeviceView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "w": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "W"
+          },
+          "requested_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Requested W"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "quality": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "stale",
+              "unknown"
+            ],
+            "title": "Quality"
+          },
+          "sample_age_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Age Ms"
+          },
+          "ack": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "applied",
+              "verified",
+              "rejected",
+              "stale",
+              "none"
+            ],
+            "title": "Ack"
+          },
+          "protected": {
+            "type": "boolean",
+            "title": "Protected"
+          },
+          "control_policy": {
+            "type": "string",
+            "enum": [
+              "protected",
+              "flexible",
+              "unclassified"
+            ],
+            "title": "Control Policy"
+          },
+          "curtailment_eligible": {
+            "type": "boolean",
+            "title": "Curtailment Eligible"
+          },
+          "deadline_in_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline In Ms"
+          },
+          "deadline_status": {
+            "type": "string",
+            "enum": [
+              "none",
+              "pending",
+              "missed",
+              "unknown"
+            ],
+            "title": "Deadline Status",
+            "default": "none"
+          },
+          "command_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Command Id"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocalDecision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "label",
+          "w",
+          "requested_w",
+          "state",
+          "quality",
+          "sample_age_ms",
+          "ack",
+          "protected",
+          "control_policy",
+          "curtailment_eligible"
+        ],
+        "title": "DeviceView"
+      },
+      "EventView": {
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Seq"
+          },
+          "at": {
+            "type": "string",
+            "title": "At"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Id"
+          },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correlation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seq",
+          "at",
+          "kind",
+          "code",
+          "text"
+        ],
+        "title": "EventView"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LabRequest": {
+        "properties": {
+          "members": {
+            "type": "integer",
+            "maximum": 5000.0,
+            "minimum": 1.0,
+            "title": "Members"
+          },
+          "seed": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Seed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "members",
+          "seed"
+        ],
+        "title": "LabRequest"
+      },
+      "LeaseRef": {
+        "properties": {
+          "member_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Member Id"
+          },
+          "member_boot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Member Boot Id"
+          },
+          "request_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Request Id"
+          },
+          "epoch": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Epoch"
+          },
+          "version": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Version"
+          },
+          "lease_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Lease Id"
+          },
+          "plan_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Plan Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "member_id",
+          "member_boot_id",
+          "request_id",
+          "epoch",
+          "version",
+          "lease_id",
+          "plan_id"
+        ],
+        "title": "LeaseRef"
+      },
+      "LeaseView": {
+        "properties": {
+          "ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LeaseRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "remaining_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Ms"
+          },
+          "sample_age_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Age Ms"
+          },
+          "quality": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "stale",
+              "unknown"
+            ],
+            "title": "Quality",
+            "default": "unknown"
+          },
+          "plant_confirmed": {
+            "type": "boolean",
+            "title": "Plant Confirmed",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "LeaseView"
+      },
+      "LocalDecision": {
+        "properties": {
+          "decision_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Decision Id"
+          },
+          "member_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Member Id"
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Device Id"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LeaseRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "offer_seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Offer Seq"
+          },
+          "requested_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Requested W"
+          },
+          "assigned_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Assigned W"
+          },
+          "member_budget_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Member Budget W"
+          },
+          "reserved_local_baseline_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Reserved Local Baseline W"
+          },
+          "higher_priority_assigned_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Higher Priority Assigned W"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "renewal",
+              "cap_change",
+              "capacity_exhausted",
+              "baseline_only",
+              "stale_offer",
+              "policy_conflict",
+              "recovery",
+              "member_budget_exceeded",
+              "min_run",
+              "deadline_missed",
+              "old_version",
+              "wrong_identity",
+              "wrong_boot",
+              "wrong_request",
+              "wrong_registry",
+              "expired",
+              "duplicate",
+              "invalid_amount",
+              "enforcer_fault",
+              "manual_priority",
+              "simulated_fault",
+              "validator_veto"
+            ],
+            "title": "Reason"
+          },
+          "deadline_status": {
+            "type": "string",
+            "enum": [
+              "none",
+              "pending",
+              "missed",
+              "unknown"
+            ],
+            "title": "Deadline Status"
+          },
+          "deadline_in_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 86400000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline In Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "decision_id",
+          "member_id",
+          "device_id",
+          "ref",
+          "offer_seq",
+          "requested_w",
+          "assigned_w",
+          "member_budget_w",
+          "reserved_local_baseline_w",
+          "higher_priority_assigned_w",
+          "reason",
+          "deadline_status",
+          "deadline_in_ms"
+        ],
+        "title": "LocalDecision"
+      },
+      "MemberView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Id"
+          },
+          "boot_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boot Id"
+          },
+          "plant_boot_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plant Boot Id"
+          },
+          "floor_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Floor W"
+          },
+          "max_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Max W"
+          },
+          "firm_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Firm W"
+          },
+          "useful_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Useful W"
+          },
+          "target_w": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target W"
+          },
+          "issued_w": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued W"
+          },
+          "reserved_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Reserved W"
+          },
+          "observed_w": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed W"
+          },
+          "observed_quality": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "stale",
+              "unknown"
+            ],
+            "title": "Observed Quality"
+          },
+          "sample_age_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Age Ms"
+          },
+          "debt_wh": {
+            "type": "number",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Debt Wh",
+            "default": 0.0
+          },
+          "reported_curtailment_wh": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported Curtailment Wh"
+          },
+          "weight": {
+            "type": "number",
+            "title": "Weight",
+            "default": 1.0
+          },
+          "lease": {
+            "$ref": "#/components/schemas/LeaseView"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "joining",
+              "ok",
+              "stale",
+              "offline",
+              "at_floor",
+              "fault"
+            ],
+            "title": "Status"
+          },
+          "devices": {
+            "items": {
+              "$ref": "#/components/schemas/DeviceView"
+            },
+            "type": "array",
+            "title": "Devices"
+          },
+          "device_visibility": {
+            "type": "string",
+            "enum": [
+              "demo_observer",
+              "hidden"
+            ],
+            "title": "Device Visibility",
+            "default": "demo_observer"
+          },
+          "basis": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Basis"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "floor_w",
+          "max_w",
+          "firm_w",
+          "useful_w",
+          "target_w",
+          "issued_w",
+          "reserved_w",
+          "observed_w",
+          "observed_quality",
+          "sample_age_ms",
+          "lease",
+          "status",
+          "devices"
+        ],
+        "title": "MemberView"
+      },
+      "MetricsView": {
+        "properties": {
+          "observation_window_ms": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Observation Window Ms",
+            "default": 0
+          },
+          "eligible_samples": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Eligible Samples",
+            "default": 0
+          },
+          "within_cap_samples": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Within Cap Samples",
+            "default": 0
+          },
+          "unknown_samples": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Unknown Samples",
+            "default": 0
+          },
+          "cap_compliance_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cap Compliance Pct"
+          },
+          "time_to_safe_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To Safe Ms"
+          },
+          "time_to_safe_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "observed",
+              "timeout",
+              "infeasible",
+              "unknown"
+            ],
+            "title": "Time To Safe Status",
+            "default": "unknown"
+          },
+          "lease_model_violations": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lease Model Violations"
+          },
+          "issued_commands": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Issued Commands",
+            "default": 0
+          },
+          "applied_commands": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Applied Commands",
+            "default": 0
+          },
+          "ack_success_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ack Success Pct"
+          },
+          "jain_service_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jain Service Ratio"
+          },
+          "fairness_sample_count": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Fairness Sample Count",
+            "default": 0
+          },
+          "max_enforcement_lateness_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Enforcement Lateness Ms"
+          },
+          "replay_gaps": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Replay Gaps",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "MetricsView"
+      },
+      "Operation": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Operation Id"
+          },
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cap",
+              "protect",
+              "chaos",
+              "rule",
+              "replay",
+              "lab"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "applied",
+              "rejected",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "control_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Control Revision"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "result_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation_id",
+          "run_id",
+          "kind",
+          "status",
+          "control_revision",
+          "created_at"
+        ],
+        "title": "Operation"
+      },
+      "SiteView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Id"
+          },
+          "cap_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Cap W"
+          },
+          "cap_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Cap Revision"
+          },
+          "measurement_reserve_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Measurement Reserve W"
+          },
+          "external_bound_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "External Bound W"
+          },
+          "baseline_sum_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Baseline Sum W"
+          },
+          "reserved_member_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Reserved Member W"
+          },
+          "unverified_member_reservation_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Unverified Member Reservation W"
+          },
+          "available_for_new_grants_w": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Available For New Grants W"
+          },
+          "exposure_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Exposure W"
+          },
+          "observed_w": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed W"
+          },
+          "observed_quality": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "stale",
+              "unknown"
+            ],
+            "title": "Observed Quality"
+          },
+          "oldest_sample_age_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Sample Age Ms"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "starting",
+              "recovering",
+              "leased",
+              "cap_transition",
+              "infeasible",
+              "unverified"
+            ],
+            "title": "State"
+          },
+          "coordinator_status": {
+            "type": "string",
+            "enum": [
+              "online",
+              "recovering",
+              "offline",
+              "unknown"
+            ],
+            "title": "Coordinator Status"
+          },
+          "recovering_ms_remaining": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9007199254740991.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovering Ms Remaining"
+          },
+          "compliance": {
+            "type": "string",
+            "enum": [
+              "within_cap",
+              "over_cap",
+              "unknown"
+            ],
+            "title": "Compliance"
+          },
+          "deficit_w": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Deficit W"
+          },
+          "affected_members": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+            },
+            "type": "array",
+            "title": "Affected Members"
+          },
+          "rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Rule"
+          },
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Id"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/StageTiming"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "cap_w",
+          "cap_revision",
+          "measurement_reserve_w",
+          "external_bound_w",
+          "baseline_sum_w",
+          "reserved_member_w",
+          "unverified_member_reservation_w",
+          "available_for_new_grants_w",
+          "exposure_w",
+          "observed_w",
+          "observed_quality",
+          "oldest_sample_age_ms",
+          "state",
+          "coordinator_status",
+          "recovering_ms_remaining",
+          "compliance",
+          "deficit_w",
+          "affected_members",
+          "rule",
+          "plan_id",
+          "timing"
+        ],
+        "title": "SiteView"
+      },
+      "Snapshot": {
+        "properties": {
+          "schema": {
+            "type": "string",
+            "const": "truss.ui_snapshot.v1",
+            "title": "Schema",
+            "default": "truss.ui_snapshot.v1"
+          },
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Stream Id"
+          },
+          "revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Revision"
+          },
+          "control_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Control Revision"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "mock",
+              "replay"
+            ],
+            "title": "Source"
+          },
+          "replay_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replay Id"
+          },
+          "generated_at": {
+            "type": "string",
+            "title": "Generated At"
+          },
+          "event_cursor": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Event Cursor"
+          },
+          "site": {
+            "$ref": "#/components/schemas/SiteView"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/MemberView"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventView"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/Operation"
+            },
+            "type": "array",
+            "title": "Operations"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/MetricsView"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/Capabilities"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "stream_id",
+          "revision",
+          "control_revision",
+          "source",
+          "generated_at",
+          "event_cursor",
+          "site",
+          "members",
+          "events",
+          "operations",
+          "metrics",
+          "capabilities"
+        ],
+        "title": "Snapshot"
+      },
+      "StageTiming": {
+        "properties": {
+          "input_validation_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Validation Ms"
+          },
+          "allocation_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allocation Ms"
+          },
+          "plan_validation_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Validation Ms"
+          },
+          "admission_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Admission Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "input_validation_ms",
+          "allocation_ms",
+          "plan_validation_ms",
+          "admission_ms"
+        ],
+        "title": "StageTiming"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

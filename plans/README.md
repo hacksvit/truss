@@ -13,10 +13,10 @@ corrections and a smaller build. No implementation files have been created.
 | [19 — Build map](19-build-map.md) | Complete future file tree, public interfaces, dependencies, ownership and component trees |
 | [20 — Contracts](20-contracts.md) | Pydantic specifications, MQTT messages, REST/WS, state views and mock behaviour |
 | [21 — Delivery](21-delivery.md) | Critical-path graph, five work streams, handoffs, test obligations and 3 a.m. runbook |
-| [22 — Protected loads and SGLang](22-sglang-and-protected-loads.md) | Mandatory protected-load policy; optional local AI explanation with hardware/cost gates |
+| [22 — Protected loads](22-sglang-and-protected-loads.md) | Mandatory protected-load policy; AI branch removed by user decision |
 
 Within this amendment set, 22's protected-load requirements supplement 18/20;
-SGLang remains optional. Proposed timings, hardware feasibility and engineering
+AI and SGLang have been removed from the active build. Proposed timings, hardware feasibility and engineering
 assumptions are not recorded test results.
 
 ## Original plans

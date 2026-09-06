@@ -1,0 +1,13 @@
+{
+  "source": "synthetic",
+  "sizes": [
+    5,
+    50,
+    500,
+    5000
+  ],
+  "seed": 7,
+  "warmups": 20,
+  "samples": 200,
+  "scope": "allocator only; no flat latency claim"
+}

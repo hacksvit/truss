@@ -1,0 +1,41 @@
+{
+  "member_id": "member-c",
+  "devices": [
+    {
+      "device_id": "protected-load",
+      "label": "Protected load",
+      "kind": "generic",
+      "max_w": 140,
+      "baseline_w": 140,
+      "control_policy": "protected",
+      "priority": 100
+    },
+    {
+      "device_id": "router",
+      "label": "Router and fixed lighting",
+      "kind": "router",
+      "max_w": 40,
+      "baseline_w": 40,
+      "control_policy": "protected",
+      "priority": 90
+    },
+    {
+      "device_id": "charger",
+      "label": "Flexible charger",
+      "kind": "charger",
+      "max_w": 180,
+      "baseline_w": 0,
+      "control_policy": "flexible",
+      "priority": 60
+    },
+    {
+      "device_id": "heater",
+      "label": "Flexible heater",
+      "kind": "heater",
+      "max_w": 730,
+      "baseline_w": 0,
+      "control_policy": "flexible",
+      "priority": 20
+    }
+  ]
+}

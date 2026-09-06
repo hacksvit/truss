@@ -1,0 +1,36 @@
+[
+  {
+    "name": "delayed_grant",
+    "steps": [
+      "request at 0",
+      "grant delivered at 6001 ms"
+    ],
+    "expected": "expired; baseline"
+  },
+  {
+    "name": "duplicate",
+    "steps": [
+      "request at 0",
+      "grant at 1 s",
+      "same grant at 5 s"
+    ],
+    "expected": "deadline remains 6 s"
+  },
+  {
+    "name": "twice_restart",
+    "steps": [
+      "restart at 0",
+      "restart at 3 s"
+    ],
+    "expected": "no grant before 9.4 s"
+  },
+  {
+    "name": "lower_then_reallocate",
+    "steps": [
+      "A holds 800",
+      "A gets 100",
+      "B asks for reclaimed 700"
+    ],
+    "expected": "deny until A old hold expires"
+  }
+]

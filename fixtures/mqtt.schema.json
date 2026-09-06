@@ -1,0 +1,3236 @@
+{
+  "$defs": {
+    "AllocationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "floor_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Floor W",
+          "type": "integer"
+        },
+        "useful_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Useful W",
+          "type": "integer"
+        },
+        "debt_wh": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Debt Wh",
+          "type": "number"
+        },
+        "weight": {
+          "maximum": 2,
+          "minimum": 1,
+          "title": "Weight",
+          "type": "number"
+        },
+        "target_w": {
+          "anyOf": [
+            {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Target W"
+        },
+        "issued_w": {
+          "anyOf": [
+            {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Issued W"
+        },
+        "reserved_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Reserved W",
+          "type": "integer"
+        },
+        "latest_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "enum": [
+            "initial",
+            "renewal",
+            "cap_change",
+            "capacity_exhausted",
+            "baseline_only",
+            "stale_offer",
+            "policy_conflict",
+            "recovery",
+            "member_budget_exceeded",
+            "min_run",
+            "deadline_missed",
+            "old_version",
+            "wrong_identity",
+            "wrong_boot",
+            "wrong_request",
+            "wrong_registry",
+            "expired",
+            "duplicate",
+            "invalid_amount",
+            "enforcer_fault",
+            "manual_priority",
+            "simulated_fault",
+            "validator_veto"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_id",
+        "floor_w",
+        "useful_w",
+        "debt_wh",
+        "weight",
+        "target_w",
+        "issued_w",
+        "reserved_w",
+        "latest_ref",
+        "reason"
+      ],
+      "title": "AllocationRow",
+      "type": "object"
+    },
+    "Basis": {
+      "additionalProperties": false,
+      "properties": {
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "policy_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Policy Hash",
+          "type": "string"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "cap_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Cap Revision",
+          "type": "integer"
+        },
+        "cap_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Cap W",
+          "type": "integer"
+        },
+        "measurement_reserve_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Measurement Reserve W",
+          "type": "integer"
+        },
+        "external_bound_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "External Bound W",
+          "type": "integer"
+        },
+        "baseline_sum_w": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Baseline Sum W",
+          "type": "integer"
+        },
+        "surplus_pool_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Surplus Pool W",
+          "type": "integer"
+        },
+        "rule": {
+          "enum": [
+            "equal_surplus",
+            "debt_weighted_surplus"
+          ],
+          "title": "Rule",
+          "type": "string"
+        },
+        "debt_scale_wh": {
+          "exclusiveMinimum": 0,
+          "maximum": 1000000,
+          "title": "Debt Scale Wh",
+          "type": "number"
+        },
+        "weight_cap": {
+          "maximum": 2,
+          "minimum": 2,
+          "title": "Weight Cap",
+          "type": "number"
+        },
+        "member_floor_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Member Floor W",
+          "type": "integer"
+        },
+        "member_useful_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Member Useful W",
+          "type": "integer"
+        },
+        "member_debt_wh": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Member Debt Wh",
+          "type": "number"
+        },
+        "member_weight": {
+          "maximum": 2,
+          "minimum": 1,
+          "title": "Member Weight",
+          "type": "number"
+        },
+        "proposed_budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Proposed Budget W",
+          "type": "integer"
+        },
+        "issued_budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Issued Budget W",
+          "type": "integer"
+        },
+        "reservation_before_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Reservation Before W",
+          "type": "integer"
+        },
+        "reservation_after_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Reservation After W",
+          "type": "integer"
+        },
+        "total_exposure_after_w": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Total Exposure After W",
+          "type": "integer"
+        },
+        "reason": {
+          "enum": [
+            "initial",
+            "renewal",
+            "cap_change",
+            "capacity_exhausted",
+            "baseline_only",
+            "stale_offer",
+            "policy_conflict",
+            "recovery",
+            "member_budget_exceeded",
+            "min_run",
+            "deadline_missed",
+            "old_version",
+            "wrong_identity",
+            "wrong_boot",
+            "wrong_request",
+            "wrong_registry",
+            "expired",
+            "duplicate",
+            "invalid_amount",
+            "enforcer_fault",
+            "manual_priority",
+            "simulated_fault",
+            "validator_veto"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "policy_hash",
+        "registry_revision",
+        "cap_revision",
+        "cap_w",
+        "measurement_reserve_w",
+        "external_bound_w",
+        "baseline_sum_w",
+        "surplus_pool_w",
+        "rule",
+        "debt_scale_wh",
+        "weight_cap",
+        "member_floor_w",
+        "member_useful_w",
+        "member_debt_wh",
+        "member_weight",
+        "proposed_budget_w",
+        "issued_budget_w",
+        "reservation_before_w",
+        "reservation_after_w",
+        "total_exposure_after_w",
+        "reason"
+      ],
+      "title": "Basis",
+      "type": "object"
+    },
+    "CapacityEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.capacity.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "event_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "operation_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "cap_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Cap Revision",
+          "type": "integer"
+        },
+        "expected_previous_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Expected Previous Revision",
+          "type": "integer"
+        },
+        "cap_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Cap W",
+          "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "operator",
+            "fixture"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "cap_change",
+            "simulated_fault"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "event_id",
+        "operation_id",
+        "cap_revision",
+        "expected_previous_revision",
+        "cap_w",
+        "source",
+        "reason"
+      ],
+      "title": "CapacityEvent",
+      "type": "object"
+    },
+    "DeviceAck": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.ack.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "binding_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "command_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "command_version": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Command Version",
+          "type": "integer"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result": {
+          "enum": [
+            "applied",
+            "rejected",
+            "duplicate",
+            "expired"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "initial",
+                "renewal",
+                "cap_change",
+                "capacity_exhausted",
+                "baseline_only",
+                "stale_offer",
+                "policy_conflict",
+                "recovery",
+                "member_budget_exceeded",
+                "min_run",
+                "deadline_missed",
+                "old_version",
+                "wrong_identity",
+                "wrong_boot",
+                "wrong_request",
+                "wrong_registry",
+                "expired",
+                "duplicate",
+                "invalid_amount",
+                "enforcer_fault",
+                "manual_priority",
+                "simulated_fault",
+                "validator_veto"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        },
+        "observed_state": {
+          "enum": [
+            "idle",
+            "requested",
+            "running",
+            "deferred",
+            "completing",
+            "fault"
+          ],
+          "title": "Observed State",
+          "type": "string"
+        },
+        "observed_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Observed W",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "device_id",
+        "plant_boot_id",
+        "binding_id",
+        "command_id",
+        "command_version",
+        "ref",
+        "result",
+        "reason",
+        "observed_state",
+        "observed_w"
+      ],
+      "title": "DeviceAck",
+      "type": "object"
+    },
+    "DeviceCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.command.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "member_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Member Boot Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "binding_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "command_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "command_version": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Command Version",
+          "type": "integer"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "desired_state": {
+          "enum": [
+            "idle",
+            "running",
+            "deferred"
+          ],
+          "title": "Desired State",
+          "type": "string"
+        },
+        "desired_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Desired W",
+          "type": "integer"
+        },
+        "clock_domain_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Clock Domain Id",
+          "type": "string"
+        },
+        "expires_mono_ns": {
+          "pattern": "^[0-9]{1,20}$",
+          "title": "Expires Mono Ns",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "initial",
+            "renewal",
+            "cap_change",
+            "capacity_exhausted",
+            "baseline_only",
+            "stale_offer",
+            "policy_conflict",
+            "recovery",
+            "member_budget_exceeded",
+            "min_run",
+            "deadline_missed",
+            "old_version",
+            "wrong_identity",
+            "wrong_boot",
+            "wrong_request",
+            "wrong_registry",
+            "expired",
+            "duplicate",
+            "invalid_amount",
+            "enforcer_fault",
+            "manual_priority",
+            "simulated_fault",
+            "validator_veto"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "decision": {
+          "$ref": "#/$defs/LocalDecision"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "member_boot_id",
+        "device_id",
+        "plant_boot_id",
+        "binding_id",
+        "command_id",
+        "command_version",
+        "ref",
+        "desired_state",
+        "desired_w",
+        "clock_domain_id",
+        "expires_mono_ns",
+        "reason",
+        "decision"
+      ],
+      "title": "DeviceCommand",
+      "type": "object"
+    },
+    "DeviceDiscovery": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.device_discovery.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "light",
+            "router",
+            "heater",
+            "charger",
+            "washer",
+            "generic"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "max_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Max W",
+          "type": "integer"
+        },
+        "baseline_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Baseline W",
+          "type": "integer"
+        },
+        "flexibility": {
+          "enum": [
+            "protected",
+            "firm",
+            "deferrable",
+            "deadline"
+          ],
+          "title": "Flexibility",
+          "type": "string"
+        },
+        "control_policy": {
+          "enum": [
+            "protected",
+            "flexible",
+            "unclassified"
+          ],
+          "title": "Control Policy",
+          "type": "string"
+        },
+        "priority": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "interruptible": {
+          "title": "Interruptible",
+          "type": "boolean"
+        },
+        "min_run_ms": {
+          "maximum": 86400000,
+          "minimum": 0,
+          "title": "Min Run Ms",
+          "type": "integer"
+        },
+        "min_off_ms": {
+          "maximum": 86400000,
+          "minimum": 0,
+          "title": "Min Off Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "device_id",
+        "plant_boot_id",
+        "registry_revision",
+        "kind",
+        "label",
+        "max_w",
+        "baseline_w",
+        "flexibility",
+        "control_policy",
+        "priority",
+        "interruptible",
+        "min_run_ms",
+        "min_off_ms"
+      ],
+      "title": "DeviceDiscovery",
+      "type": "object"
+    },
+    "DeviceTelemetry": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.telemetry.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "clock_domain_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Clock Domain Id",
+          "type": "string"
+        },
+        "sampled_mono_ns": {
+          "pattern": "^[0-9]{1,20}$",
+          "title": "Sampled Mono Ns",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "requested",
+            "running",
+            "deferred",
+            "completing",
+            "fault"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "observed_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Observed W",
+          "type": "integer"
+        },
+        "requested_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Requested W",
+          "type": "integer"
+        },
+        "remaining_energy_wh": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Remaining Energy Wh",
+          "type": "number"
+        },
+        "deadline_in_ms": {
+          "anyOf": [
+            {
+              "maximum": 86400000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Deadline In Ms"
+        },
+        "min_run_remaining_ms": {
+          "maximum": 86400000,
+          "minimum": 0,
+          "title": "Min Run Remaining Ms",
+          "type": "integer"
+        },
+        "min_off_remaining_ms": {
+          "maximum": 86400000,
+          "minimum": 0,
+          "title": "Min Off Remaining Ms",
+          "type": "integer"
+        },
+        "last_command_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Last Command Id"
+        },
+        "last_command_version": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Last Command Version",
+          "type": "integer"
+        },
+        "active_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "device_id",
+        "plant_boot_id",
+        "clock_domain_id",
+        "sampled_mono_ns",
+        "state",
+        "observed_w",
+        "requested_w",
+        "remaining_energy_wh",
+        "deadline_in_ms",
+        "min_run_remaining_ms",
+        "min_off_remaining_ms",
+        "last_command_id",
+        "last_command_version",
+        "active_ref"
+      ],
+      "title": "DeviceTelemetry",
+      "type": "object"
+    },
+    "Lease": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.lease.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "ref": {
+          "$ref": "#/$defs/LeaseRef"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Budget W",
+          "type": "integer"
+        },
+        "ttl_ms": {
+          "maximum": 6000,
+          "minimum": 6000,
+          "title": "Ttl Ms",
+          "type": "integer"
+        },
+        "reason": {
+          "enum": [
+            "initial",
+            "renewal",
+            "cap_change",
+            "capacity_exhausted",
+            "baseline_only",
+            "stale_offer",
+            "policy_conflict",
+            "recovery",
+            "member_budget_exceeded",
+            "min_run",
+            "deadline_missed",
+            "old_version",
+            "wrong_identity",
+            "wrong_boot",
+            "wrong_request",
+            "wrong_registry",
+            "expired",
+            "duplicate",
+            "invalid_amount",
+            "enforcer_fault",
+            "manual_priority",
+            "simulated_fault",
+            "validator_veto"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "basis": {
+          "$ref": "#/$defs/Basis"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "ref",
+        "registry_revision",
+        "budget_w",
+        "ttl_ms",
+        "reason",
+        "basis"
+      ],
+      "title": "Lease",
+      "type": "object"
+    },
+    "LeaseAck": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.lease_ack.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "ref": {
+          "$ref": "#/$defs/LeaseRef"
+        },
+        "result": {
+          "enum": [
+            "applied",
+            "rejected",
+            "duplicate",
+            "expired"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "initial",
+                "renewal",
+                "cap_change",
+                "capacity_exhausted",
+                "baseline_only",
+                "stale_offer",
+                "policy_conflict",
+                "recovery",
+                "member_budget_exceeded",
+                "min_run",
+                "deadline_missed",
+                "old_version",
+                "wrong_identity",
+                "wrong_boot",
+                "wrong_request",
+                "wrong_registry",
+                "expired",
+                "duplicate",
+                "invalid_amount",
+                "enforcer_fault",
+                "manual_priority",
+                "simulated_fault",
+                "validator_veto"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        },
+        "accepted_budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Accepted Budget W",
+          "type": "integer"
+        },
+        "lease_ms_remaining": {
+          "maximum": 6000,
+          "minimum": 0,
+          "title": "Lease Ms Remaining",
+          "type": "integer"
+        },
+        "plant_confirmed": {
+          "title": "Plant Confirmed",
+          "type": "boolean"
+        },
+        "observed_w": {
+          "anyOf": [
+            {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Observed W"
+        },
+        "observation_quality": {
+          "enum": [
+            "fresh",
+            "stale",
+            "unknown"
+          ],
+          "title": "Observation Quality",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plant Boot Id"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "ref",
+        "result",
+        "reason",
+        "accepted_budget_w",
+        "lease_ms_remaining",
+        "plant_confirmed",
+        "observed_w",
+        "observation_quality",
+        "plant_boot_id"
+      ],
+      "title": "LeaseAck",
+      "type": "object"
+    },
+    "LeaseRef": {
+      "additionalProperties": false,
+      "properties": {
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "member_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Member Boot Id",
+          "type": "string"
+        },
+        "request_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "epoch": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Epoch",
+          "type": "integer"
+        },
+        "version": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "lease_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Lease Id",
+          "type": "string"
+        },
+        "plan_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Plan Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "member_id",
+        "member_boot_id",
+        "request_id",
+        "epoch",
+        "version",
+        "lease_id",
+        "plan_id"
+      ],
+      "title": "LeaseRef",
+      "type": "object"
+    },
+    "LeaseRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.lease_request.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "member_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Member Boot Id",
+          "type": "string"
+        },
+        "request_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "request_seq": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Request Seq",
+          "type": "integer"
+        },
+        "offer_seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Offer Seq",
+          "type": "integer"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "ttl_ms": {
+          "maximum": 6000,
+          "minimum": 6000,
+          "title": "Ttl Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "member_boot_id",
+        "request_id",
+        "request_seq",
+        "offer_seq",
+        "registry_revision",
+        "ttl_ms"
+      ],
+      "title": "LeaseRequest",
+      "type": "object"
+    },
+    "LocalDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "offer_seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Offer Seq",
+          "type": "integer"
+        },
+        "requested_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Requested W",
+          "type": "integer"
+        },
+        "assigned_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Assigned W",
+          "type": "integer"
+        },
+        "member_budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Member Budget W",
+          "type": "integer"
+        },
+        "reserved_local_baseline_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Reserved Local Baseline W",
+          "type": "integer"
+        },
+        "higher_priority_assigned_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Higher Priority Assigned W",
+          "type": "integer"
+        },
+        "reason": {
+          "enum": [
+            "initial",
+            "renewal",
+            "cap_change",
+            "capacity_exhausted",
+            "baseline_only",
+            "stale_offer",
+            "policy_conflict",
+            "recovery",
+            "member_budget_exceeded",
+            "min_run",
+            "deadline_missed",
+            "old_version",
+            "wrong_identity",
+            "wrong_boot",
+            "wrong_request",
+            "wrong_registry",
+            "expired",
+            "duplicate",
+            "invalid_amount",
+            "enforcer_fault",
+            "manual_priority",
+            "simulated_fault",
+            "validator_veto"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "deadline_status": {
+          "enum": [
+            "none",
+            "pending",
+            "missed",
+            "unknown"
+          ],
+          "title": "Deadline Status",
+          "type": "string"
+        },
+        "deadline_in_ms": {
+          "anyOf": [
+            {
+              "maximum": 86400000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Deadline In Ms"
+        }
+      },
+      "required": [
+        "decision_id",
+        "member_id",
+        "device_id",
+        "ref",
+        "offer_seq",
+        "requested_w",
+        "assigned_w",
+        "member_budget_w",
+        "reserved_local_baseline_w",
+        "higher_priority_assigned_w",
+        "reason",
+        "deadline_status",
+        "deadline_in_ms"
+      ],
+      "title": "LocalDecision",
+      "type": "object"
+    },
+    "LocalPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.local_policy.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "operation_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "policy_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Policy Revision",
+          "type": "integer"
+        },
+        "protected": {
+          "title": "Protected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "operation_id",
+        "member_id",
+        "device_id",
+        "policy_revision",
+        "protected"
+      ],
+      "title": "LocalPolicy",
+      "type": "object"
+    },
+    "MemberMeter": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.member_meter.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "clock_domain_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Clock Domain Id",
+          "type": "string"
+        },
+        "sampled_mono_ns": {
+          "pattern": "^[0-9]{1,20}$",
+          "title": "Sampled Mono Ns",
+          "type": "string"
+        },
+        "observed_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Observed W",
+          "type": "integer"
+        },
+        "active_budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Active Budget W",
+          "type": "integer"
+        },
+        "floor_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Floor W",
+          "type": "integer"
+        },
+        "active_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lease_ms_remaining": {
+          "maximum": 6000,
+          "minimum": 0,
+          "title": "Lease Ms Remaining",
+          "type": "integer"
+        },
+        "at_floor": {
+          "title": "At Floor",
+          "type": "boolean"
+        },
+        "enforcement_state": {
+          "enum": [
+            "healthy",
+            "fault"
+          ],
+          "title": "Enforcement State",
+          "type": "string"
+        },
+        "sample_seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Sample Seq",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "plant_boot_id",
+        "clock_domain_id",
+        "sampled_mono_ns",
+        "observed_w",
+        "active_budget_w",
+        "floor_w",
+        "active_ref",
+        "lease_ms_remaining",
+        "at_floor",
+        "enforcement_state",
+        "sample_seq"
+      ],
+      "title": "MemberMeter",
+      "type": "object"
+    },
+    "Offer": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.offer.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "member_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Member Boot Id",
+          "type": "string"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "floor_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Floor W",
+          "type": "integer"
+        },
+        "firm_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Firm W",
+          "type": "integer"
+        },
+        "useful_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Useful W",
+          "type": "integer"
+        },
+        "deadline_energy_wh": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Deadline Energy Wh",
+          "type": "number"
+        },
+        "deadline_in_ms": {
+          "anyOf": [
+            {
+              "maximum": 86400000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Deadline In Ms"
+        },
+        "debt_wh": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Debt Wh",
+          "type": "number"
+        },
+        "debt_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Debt Revision",
+          "type": "integer"
+        },
+        "reported_curtailment_wh": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Reported Curtailment Wh",
+          "type": "number"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "member_boot_id",
+        "registry_revision",
+        "floor_w",
+        "firm_w",
+        "useful_w",
+        "deadline_energy_wh",
+        "deadline_in_ms",
+        "debt_wh",
+        "debt_revision",
+        "reported_curtailment_wh"
+      ],
+      "title": "Offer",
+      "type": "object"
+    },
+    "Plan": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.plan.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "plan_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "policy_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Policy Hash",
+          "type": "string"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "cap_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Cap Revision",
+          "type": "integer"
+        },
+        "epoch": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Epoch",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "admitted",
+            "waiting_release",
+            "infeasible",
+            "vetoed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "rule": {
+          "enum": [
+            "equal_surplus",
+            "debt_weighted_surplus"
+          ],
+          "title": "Rule",
+          "type": "string"
+        },
+        "cap_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Cap W",
+          "type": "integer"
+        },
+        "measurement_reserve_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Measurement Reserve W",
+          "type": "integer"
+        },
+        "external_bound_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "External Bound W",
+          "type": "integer"
+        },
+        "baseline_sum_w": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Baseline Sum W",
+          "type": "integer"
+        },
+        "deficit_w": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Deficit W",
+          "type": "integer"
+        },
+        "affected_members": {
+          "items": {
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "type": "string"
+          },
+          "title": "Affected Members",
+          "type": "array"
+        },
+        "allocations": {
+          "items": {
+            "$ref": "#/$defs/AllocationRow"
+          },
+          "title": "Allocations",
+          "type": "array"
+        },
+        "validation": {
+          "$ref": "#/$defs/ValidationResult"
+        },
+        "timing": {
+          "$ref": "#/$defs/StageTiming"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "plan_id",
+        "snapshot_id",
+        "policy_hash",
+        "registry_revision",
+        "cap_revision",
+        "epoch",
+        "status",
+        "rule",
+        "cap_w",
+        "measurement_reserve_w",
+        "external_bound_w",
+        "baseline_sum_w",
+        "deficit_w",
+        "affected_members",
+        "allocations",
+        "validation",
+        "timing"
+      ],
+      "title": "Plan",
+      "type": "object"
+    },
+    "PlantAck": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.plant_ack.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "binding_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "bind",
+            "ceiling"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LeaseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result": {
+          "enum": [
+            "applied",
+            "rejected",
+            "duplicate",
+            "expired"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "initial",
+                "renewal",
+                "cap_change",
+                "capacity_exhausted",
+                "baseline_only",
+                "stale_offer",
+                "policy_conflict",
+                "recovery",
+                "member_budget_exceeded",
+                "min_run",
+                "deadline_missed",
+                "old_version",
+                "wrong_identity",
+                "wrong_boot",
+                "wrong_request",
+                "wrong_registry",
+                "expired",
+                "duplicate",
+                "invalid_amount",
+                "enforcer_fault",
+                "manual_priority",
+                "simulated_fault",
+                "validator_veto"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        },
+        "active_budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Active Budget W",
+          "type": "integer"
+        },
+        "remaining_ms": {
+          "maximum": 6000,
+          "minimum": 0,
+          "title": "Remaining Ms",
+          "type": "integer"
+        },
+        "observed_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Observed W",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "plant_boot_id",
+        "binding_id",
+        "kind",
+        "ref",
+        "result",
+        "reason",
+        "active_budget_w",
+        "remaining_ms",
+        "observed_w"
+      ],
+      "title": "PlantAck",
+      "type": "object"
+    },
+    "PlantBind": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.plant_bind.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "member_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Member Boot Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "binding_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "clock_domain_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Clock Domain Id",
+          "type": "string"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "member_boot_id",
+        "plant_boot_id",
+        "binding_id",
+        "clock_domain_id",
+        "registry_revision"
+      ],
+      "title": "PlantBind",
+      "type": "object"
+    },
+    "PlantCeiling": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.plant_ceiling.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "member_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Member Boot Id",
+          "type": "string"
+        },
+        "plant_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Plant Boot Id",
+          "type": "string"
+        },
+        "binding_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "clock_domain_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Clock Domain Id",
+          "type": "string"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "ref": {
+          "$ref": "#/$defs/LeaseRef"
+        },
+        "budget_w": {
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Budget W",
+          "type": "integer"
+        },
+        "expires_mono_ns": {
+          "pattern": "^[0-9]{1,20}$",
+          "title": "Expires Mono Ns",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "member_id",
+        "member_boot_id",
+        "plant_boot_id",
+        "binding_id",
+        "clock_domain_id",
+        "registry_revision",
+        "ref",
+        "budget_w",
+        "expires_mono_ns"
+      ],
+      "title": "PlantCeiling",
+      "type": "object"
+    },
+    "PolicyAck": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.policy_ack.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "operation_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "member_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Member Id",
+          "type": "string"
+        },
+        "device_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "policy_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Policy Revision",
+          "type": "integer"
+        },
+        "protected": {
+          "title": "Protected",
+          "type": "boolean"
+        },
+        "result": {
+          "enum": [
+            "applied",
+            "rejected",
+            "duplicate"
+          ],
+          "title": "Result",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "initial",
+                "renewal",
+                "cap_change",
+                "capacity_exhausted",
+                "baseline_only",
+                "stale_offer",
+                "policy_conflict",
+                "recovery",
+                "member_budget_exceeded",
+                "min_run",
+                "deadline_missed",
+                "old_version",
+                "wrong_identity",
+                "wrong_boot",
+                "wrong_request",
+                "wrong_registry",
+                "expired",
+                "duplicate",
+                "invalid_amount",
+                "enforcer_fault",
+                "manual_priority",
+                "simulated_fault",
+                "validator_veto"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "operation_id",
+        "member_id",
+        "device_id",
+        "policy_revision",
+        "protected",
+        "result",
+        "reason"
+      ],
+      "title": "PolicyAck",
+      "type": "object"
+    },
+    "StageTiming": {
+      "additionalProperties": false,
+      "properties": {
+        "input_validation_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Input Validation Ms"
+        },
+        "allocation_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Allocation Ms"
+        },
+        "plan_validation_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plan Validation Ms"
+        },
+        "admission_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Admission Ms"
+        }
+      },
+      "required": [
+        "input_validation_ms",
+        "allocation_ms",
+        "plan_validation_ms",
+        "admission_ms"
+      ],
+      "title": "StageTiming",
+      "type": "object"
+    },
+    "Status": {
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "truss.status.v1",
+          "title": "Schema",
+          "type": "string"
+        },
+        "site_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Site Id",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "publisher_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Publisher Id",
+          "type": "string"
+        },
+        "publisher_boot_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Publisher Boot Id",
+          "type": "string"
+        },
+        "seq": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "string"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Correlation Id"
+        },
+        "component": {
+          "enum": [
+            "coordinator",
+            "member",
+            "plant"
+          ],
+          "title": "Component",
+          "type": "string"
+        },
+        "component_id": {
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+          "title": "Component Id",
+          "type": "string"
+        },
+        "connection_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Connection Id",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "heartbeat",
+            "will",
+            "graceful"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "starting",
+            "recovering",
+            "online",
+            "offline",
+            "at_floor",
+            "fault"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "member_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Member Id"
+        },
+        "epoch": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Epoch"
+        },
+        "recovery_ms_remaining": {
+          "anyOf": [
+            {
+              "maximum": 6400,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Recovery Ms Remaining"
+        },
+        "registry_revision": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Registry Revision",
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "initial",
+                "renewal",
+                "cap_change",
+                "capacity_exhausted",
+                "baseline_only",
+                "stale_offer",
+                "policy_conflict",
+                "recovery",
+                "member_budget_exceeded",
+                "min_run",
+                "deadline_missed",
+                "old_version",
+                "wrong_identity",
+                "wrong_boot",
+                "wrong_request",
+                "wrong_registry",
+                "expired",
+                "duplicate",
+                "invalid_amount",
+                "enforcer_fault",
+                "manual_priority",
+                "simulated_fault",
+                "validator_veto"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "schema",
+        "site_id",
+        "run_id",
+        "publisher_id",
+        "publisher_boot_id",
+        "seq",
+        "ts",
+        "correlation_id",
+        "component",
+        "component_id",
+        "connection_id",
+        "source",
+        "state",
+        "member_id",
+        "epoch",
+        "recovery_ms_remaining",
+        "registry_revision",
+        "reason"
+      ],
+      "title": "Status",
+      "type": "object"
+    },
+    "ValidationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "valid": {
+          "title": "Valid",
+          "type": "boolean"
+        },
+        "codes": {
+          "items": {
+            "enum": [
+              "initial",
+              "renewal",
+              "cap_change",
+              "capacity_exhausted",
+              "baseline_only",
+              "stale_offer",
+              "policy_conflict",
+              "recovery",
+              "member_budget_exceeded",
+              "min_run",
+              "deadline_missed",
+              "old_version",
+              "wrong_identity",
+              "wrong_boot",
+              "wrong_request",
+              "wrong_registry",
+              "expired",
+              "duplicate",
+              "invalid_amount",
+              "enforcer_fault",
+              "manual_priority",
+              "simulated_fault",
+              "validator_veto"
+            ],
+            "type": "string"
+          },
+          "title": "Codes",
+          "type": "array"
+        },
+        "exposure_w": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Exposure W",
+          "type": "integer"
+        },
+        "limit_after_reserves_w": {
+          "anyOf": [
+            {
+              "maximum": 100000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Limit After Reserves W"
+        }
+      },
+      "required": [
+        "valid",
+        "codes",
+        "exposure_w",
+        "limit_after_reserves_w"
+      ],
+      "title": "ValidationResult",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "truss.ack.v1": "#/$defs/DeviceAck",
+      "truss.capacity.v1": "#/$defs/CapacityEvent",
+      "truss.command.v1": "#/$defs/DeviceCommand",
+      "truss.device_discovery.v1": "#/$defs/DeviceDiscovery",
+      "truss.lease.v1": "#/$defs/Lease",
+      "truss.lease_ack.v1": "#/$defs/LeaseAck",
+      "truss.lease_request.v1": "#/$defs/LeaseRequest",
+      "truss.local_policy.v1": "#/$defs/LocalPolicy",
+      "truss.member_meter.v1": "#/$defs/MemberMeter",
+      "truss.offer.v1": "#/$defs/Offer",
+      "truss.plan.v1": "#/$defs/Plan",
+      "truss.plant_ack.v1": "#/$defs/PlantAck",
+      "truss.plant_bind.v1": "#/$defs/PlantBind",
+      "truss.plant_ceiling.v1": "#/$defs/PlantCeiling",
+      "truss.policy_ack.v1": "#/$defs/PolicyAck",
+      "truss.status.v1": "#/$defs/Status",
+      "truss.telemetry.v1": "#/$defs/DeviceTelemetry"
+    },
+    "propertyName": "schema"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Status"
+    },
+    {
+      "$ref": "#/$defs/Offer"
+    },
+    {
+      "$ref": "#/$defs/LeaseRequest"
+    },
+    {
+      "$ref": "#/$defs/Lease"
+    },
+    {
+      "$ref": "#/$defs/LeaseAck"
+    },
+    {
+      "$ref": "#/$defs/PlantBind"
+    },
+    {
+      "$ref": "#/$defs/PlantCeiling"
+    },
+    {
+      "$ref": "#/$defs/PlantAck"
+    },
+    {
+      "$ref": "#/$defs/MemberMeter"
+    },
+    {
+      "$ref": "#/$defs/DeviceDiscovery"
+    },
+    {
+      "$ref": "#/$defs/DeviceTelemetry"
+    },
+    {
+      "$ref": "#/$defs/DeviceCommand"
+    },
+    {
+      "$ref": "#/$defs/DeviceAck"
+    },
+    {
+      "$ref": "#/$defs/CapacityEvent"
+    },
+    {
+      "$ref": "#/$defs/LocalPolicy"
+    },
+    {
+      "$ref": "#/$defs/PolicyAck"
+    },
+    {
+      "$ref": "#/$defs/Plan"
+    }
+  ]
+}

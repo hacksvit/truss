@@ -1,5 +1,7 @@
 # 21 — Dependency graph, tests and the 3 a.m. plan
 
+**Scope update (6 September 2026): AI and SGLang are removed at the user’s request. Any historical optional-AI branches below are cancelled; BUILD_PLAN.md is the active build order.**
+
 This replaces the sequencing decisions in 11 and resolves its conflicts with 07/15/16. It is an estimate for **one strong builder M1 and four learners**, not five interchangeable experts. Start hour is relative to the organiser's confirmed official start. No advance competition code or commits are assumed.
 
 ## Achievability verdict

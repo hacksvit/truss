@@ -17,9 +17,10 @@ the inconvenience.
 
 Truss gives each home a **member**: a local agent that knows its own devices in
 detail, keeps that detail private, and publishes one thing — a **flexibility
-offer**. A **coordinator** divides the available power across members by a
-provably fair rule, and hands each member a **lease**: this much power, until
-this moment. Members command their own devices, acknowledge, and are measured.
+offer**. A **coordinator** proposes a weighted max-min allocation of surplus
+above registered floors, then an independent reservation gate decides what can
+be issued. A **lease** expires six seconds after the member's request on its
+own monotonic clock. The planned live processes command and measure virtual devices.
 If a lease is not renewed, the member falls back to its safe floor on its own,
 without being told.
 
@@ -72,9 +73,8 @@ This goes on the first slide, not the appendix.
 
 **Truss never switches mains voltage.** It is not a smart panel, not an inverter
 controller, not a certified demand-response platform, and it makes no savings
-claims. It is a planning-and-control demonstrator: emulated device nodes plus,
-optionally, one ESP32 driving a low-voltage LED. Every claim it makes is one it
-measures.
+claims. It is a planning-and-control demonstrator using virtual device
+processes. Measured results and unverified assumptions are reported separately.
 
 ---
 
@@ -88,8 +88,46 @@ measures.
 
 ---
 
-## Status
+## Status and startup
 
-Preparation only. No implementation code lives here — see
-[plans/14-rules.md](plans/14-rules.md) for why that constraint exists and what
-it does and does not forbid.
+Implementation began after the user confirmed the hackathon had started.
+This checkout contains a **working local MQTT backend with independent virtual
+plants**, tested protocol cores, and a mock console for frontend development.
+Historical plans describe the intended end state; use the
+[implementation status](docs/implementation-status.md) to distinguish it from working code.
+
+```bash
+python -m venv .venv
+.venv/bin/pip install -r requirements.lock
+.venv/bin/pip install -e . --no-deps
+npm --prefix web ci
+npm --prefix web run build
+.venv/bin/truss check-config
+.venv/bin/truss mock
+```
+
+Open `http://127.0.0.1:8000` for `/`, `/console` and `/lab`.
+Dependencies must be installed before an offline demonstration. Runtime uses
+local assets and no cloud service. Development UI: `npm --prefix web run dev`.
+
+```bash
+.venv/bin/pytest -q
+npm --prefix web test
+npm --prefix web run build
+```
+
+Start with [the build guide](docs/architecture.md), [current API contract](docs/protocol.md),
+[parallel delivery gates](plans/21-delivery.md) and [the runbook](docs/runbook.md).
+Protected fictional loads stay reserved for the full run. AI/SGLang have been
+removed from scope; decisions and explanations are deterministic. No medical
+devices or mains actuation are connected.
+
+For the real backend, install Mosquitto (or use the pinned local-cache helper
+`python scripts/setup_local_broker.py` on this Arch PC), then run:
+
+```bash
+.venv/bin/truss live --port 8001
+```
+
+Follow [BUILD_PLAN.md](BUILD_PLAN.md) in order. Your frontend handoff is in
+[docs/frontend-handoff.md](docs/frontend-handoff.md).

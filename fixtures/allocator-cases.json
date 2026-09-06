@@ -1,0 +1,79 @@
+[
+  {
+    "name": "equal",
+    "floors": [
+      100,
+      100
+    ],
+    "useful": [
+      500,
+      500
+    ],
+    "weights": [
+      1,
+      1
+    ],
+    "cap": 600,
+    "expected": [
+      300,
+      300
+    ]
+  },
+  {
+    "name": "weighted_surplus",
+    "floors": [
+      100,
+      100
+    ],
+    "useful": [
+      500,
+      500
+    ],
+    "weights": [
+      1,
+      2
+    ],
+    "cap": 500,
+    "expected": [
+      200,
+      300
+    ]
+  },
+  {
+    "name": "round_down",
+    "floors": [
+      0,
+      0
+    ],
+    "useful": [
+      5,
+      5
+    ],
+    "weights": [
+      1,
+      1
+    ],
+    "cap": 3,
+    "expected": [
+      1,
+      1
+    ]
+  },
+  {
+    "name": "floor_deficit",
+    "floors": [
+      100,
+      100
+    ],
+    "useful": [
+      500,
+      500
+    ],
+    "weights": [
+      1,
+      1
+    ],
+    "cap": 150,
+    "expected": null
+  }
+]

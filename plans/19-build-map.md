@@ -1,5 +1,7 @@
 # 19 — Build map and ownership
 
+**Scope update (6 September 2026): AI and SGLang are removed at the user’s request. Any historical optional-AI branches below are cancelled; BUILD_PLAN.md is the active build order.**
+
 This tree describes the **future competition repository**, created only after the official start. None of these implementation files is created by this review. Every listed file has a purpose and owner. Runtime/generated outputs are listed separately; optional SGLang files are in 22 and do not enter the core dependency graph.
 
 ## Process boundary

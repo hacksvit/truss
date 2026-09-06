@@ -1,0 +1,45 @@
+{
+  "site_id": "hostel-demo",
+  "run_id": "b7031510-c727-4627-95b4-7958ec58a001",
+  "registry_revision": 1,
+  "cap_w": 5000,
+  "measurement_reserve_w": 100,
+  "external_bound_w": 0,
+  "members": [
+    {
+      "member_id": "member-a",
+      "floor_w": 160,
+      "max_w": 990,
+      "host_id": "primary",
+      "baseline_revision": 1
+    },
+    {
+      "member_id": "member-b",
+      "floor_w": 170,
+      "max_w": 1040,
+      "host_id": "primary",
+      "baseline_revision": 1
+    },
+    {
+      "member_id": "member-c",
+      "floor_w": 180,
+      "max_w": 1090,
+      "host_id": "primary",
+      "baseline_revision": 1
+    },
+    {
+      "member_id": "member-d",
+      "floor_w": 190,
+      "max_w": 1140,
+      "host_id": "primary",
+      "baseline_revision": 1
+    },
+    {
+      "member_id": "member-e",
+      "floor_w": 200,
+      "max_w": 1190,
+      "host_id": "primary",
+      "baseline_revision": 1
+    }
+  ]
+}
