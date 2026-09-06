@@ -824,6 +824,13 @@
           "title": "Reserved W",
           "type": "integer"
         },
+        "unusable_w": {
+          "default": 0,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Unusable W",
+          "type": "integer"
+        },
         "observed_w": {
           "anyOf": [
             {
@@ -1260,6 +1267,13 @@
           "maximum": 100000,
           "minimum": 0,
           "title": "Available For New Grants W",
+          "type": "integer"
+        },
+        "unusable_w": {
+          "default": 0,
+          "maximum": 100000,
+          "minimum": 0,
+          "title": "Unusable W",
           "type": "integer"
         },
         "exposure_w": {

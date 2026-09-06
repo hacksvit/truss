@@ -35,7 +35,8 @@
       "max_w": 650,
       "baseline_w": 0,
       "control_policy": "flexible",
-      "priority": 20
+      "priority": 20,
+      "actuation": "binary"
     }
   ]
 }

@@ -1,0 +1,8 @@
+const box={viewBox:'0 0 18 18',width:18,height:18,'aria-hidden':true} as const;
+export function IconHome(){return <svg {...box} fill="currentColor"><path d="M9 1.6 17 9.6h-2.4v6.8h-3.9v-4.7H7.3v4.7H3.4V9.6H1z"/></svg>;}
+export function IconInfo(){return <svg {...box} fill="currentColor" fillRule="evenodd"><path d="M9 1a8 8 0 100 16A8 8 0 009 1zm0 1.9a6.1 6.1 0 110 12.2A6.1 6.1 0 019 2.9z"/><circle cx="9" cy="5.3" r="1.15"/><rect x="7.95" y="7.5" width="2.1" height="5.9"/></svg>;}
+export function IconExample(){return <svg {...box} fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 3.6 3.6 14.2h10.8z"/><circle cx="9" cy="3.6" r="2.4" fill="currentColor" stroke="none"/><circle cx="3.6" cy="14.2" r="2.4" fill="currentColor" stroke="none"/><circle cx="14.4" cy="14.2" r="2.4" fill="currentColor" stroke="none"/></svg>;}
+export function IconCredits(){return <svg {...box} fill="currentColor"><circle cx="9" cy="5.1" r="3.35"/><path d="M2.7 16.5a6.3 6.3 0 0112.6 0z"/></svg>;}
+export function IconCog(){return <svg {...box} fill="currentColor"><path d="M9 5.6A3.4 3.4 0 105.6 9 3.4 3.4 0 019 5.6zm0-4.4 1 2.2 2.3-.6.5 2.3 2.2 1-1.3 2 1.3 2-2.2 1-.5 2.3-2.3-.6-1 2.2-1-2.2-2.3.6-.5-2.3-2.2-1 1.3-2-1.3-2 2.2-1 .5-2.3 2.3.6z"/></svg>;}
+export function IconConsole(){return <svg {...box} fill="currentColor"><rect x="1.6" y="4.4" width="14.8" height="1.7" rx=".85"/><circle cx="5.6" cy="5.25" r="2.3"/><rect x="1.6" y="11.9" width="14.8" height="1.7" rx=".85"/><circle cx="12.4" cy="12.75" r="2.3"/></svg>;}
+export function IconLab(){return <svg {...box} fill="currentColor"><path d="M6.5 1.5h5v1.7h-.85v3.9l4.35 7.2a1.25 1.25 0 01-1.05 1.9H3.55a1.25 1.25 0 01-1.05-1.9l4.35-7.2V3.2H6.5z"/></svg>;}

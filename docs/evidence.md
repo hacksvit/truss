@@ -12,6 +12,12 @@ Evidence classes follow [research/sources.md](../research/sources.md). These are
 - Final full backend run: **38 passed, 0 skipped**, in **82.52 seconds**. Two dependency deprecation warnings did not affect the result. Earlier scaffold skips are no longer the state of this checkout.
 - Frontend contract recheck after AI removal: **8 tests passed**, TypeScript/Vite build passed. A chart-containing bundle size warning remains; it is not a failed build.
 
+## Binary actuation — 7 September 2026
+
+- `member-a`'s heater is now a binary 650 W load. Its whole step does not fit the 620 W left after its higher-priority charger, so it is skipped and that capacity is stranded rather than partly commanded. A real-process run reported site observed **4280 W** with **620 W** reported as `unusable_w`, and the heater at 0 W. The previously recorded 4900 W total is the all-modulating configuration; both are correct for their config.
+- Binary loads are non-linear in the cap. Measured against the current registry: cap 5000 strands 620 W, cap 5100 strands 640 W, and cap 5150 lets the whole step fit — site draw moves 4360 W to 5050 W for a 50 W cap increase. This is a property of whole-appliance actuation, not a scheduling result; no combinatorial allocator is implemented.
+- Nine new household-assignment tests, including Hypothesis properties that assignment never exceeds its budget, never falls below registered baselines, and that only binary devices can strand capacity. Full backend suite: **65 passed, 0 skipped**, in **95.55 seconds**. Frontend: **8 tests passed**, TypeScript/Vite build passed.
+
 ## What the tests establish
 
 Hypothesis checks allocation envelopes, exact continuous normalized-surplus ratios, deterministic ordering and conservative timed authority sequences. Unit regressions cover delayed/duplicate grants, no early reclaim, fixed floors, protected command rejection/expiry, idempotent virtual effects, durable epochs/singletons and unknown/null metrics. Live tests add actual process boundaries, MQTT delivery and independent plant observations. Trace tests require a matching emitted Plan for each recorded grant's plan_id and snapshot hash.

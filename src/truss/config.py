@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from pydantic import Field, model_validator
-from .schemas import Model, ID, UUID, W, Pos, ControlPolicy
+from .schemas import Model, ID, UUID, W, Pos, ControlPolicy, Actuation
 
 
 class Registration(Model):
@@ -52,6 +52,7 @@ class DeviceProfile(Model):
     baseline_w: W
     control_policy: ControlPolicy
     priority: int = Field(ge=0, le=100)
+    actuation: Actuation = "modulating"
 
     @model_validator(mode="after")
     def protected_maximum(self):
@@ -59,6 +60,8 @@ class DeviceProfile(Model):
             raise ValueError("baseline exceeds maximum")
         if self.control_policy != "flexible" and self.baseline_w != self.max_w:
             raise ValueError("protected/unclassified device must be fully reserved")
+        if self.actuation == "binary" and self.baseline_w == self.max_w:
+            raise ValueError("binary device needs a step between baseline and maximum")
         return self
 
 

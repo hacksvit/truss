@@ -1,0 +1,249 @@
+/* ============================================================
+   Truss — application shell tokens + chrome
+   Generated from the Figma file "Truss — App Shell".
+   Token names match the Figma variables 1:1.
+   ============================================================ */
+
+:root {
+  /* primitives */
+  --navy-900:#0C111C; --navy-800:#121A2A; --navy-700:#1A2436;
+  --navy-600:#232F45; --navy-500:#2E3C55;
+  --slate-700:#343B45; --slate-600:#3F4855; --slate-500:#4A5568; --slate-300:#8A97AB;
+  --teal-600:#3E7C84; --teal-500:#5A898E; --teal-400:#698F93;
+  --teal-300:#8FB4B8; --teal-200:#BBD4D6;
+  --blue-200:#C7D9E8; --blue-100:#E3EDF5; --blue-50:#F2F7FB;
+  --ink-900:#131A24; --white:#FFFFFF;
+
+  /* semantic — LIGHT */
+  --bg-canvas:var(--blue-50);
+  --bg-bar:var(--white);
+  --bg-dash:var(--blue-100);
+  --bg-item-hover:var(--blue-200);
+  --bg-item-active:var(--teal-600);
+  --border-default:var(--blue-200);
+  --border-strong:var(--slate-300);
+  --text-primary:var(--ink-900);
+  --text-muted:var(--slate-500);
+  --text-on-accent:var(--white);
+  --accent:var(--teal-600);
+  --truss-logo-structure:var(--slate-700);
+  --truss-logo-web:var(--teal-600);
+
+  /* geometry */
+  --step:4px;              /* dash corner step */
+  --step-sm:3px;           /* nav item corner step */
+  --dash-h:46px;
+  --item-h:34px;
+  --item-w-collapsed:44px;
+  --item-w-expanded:108px;
+  --expand-ms:220ms;
+  --expand-ease:cubic-bezier(.2,.7,.3,1);
+}
+
+[data-theme="dark"] {
+  --bg-canvas:var(--navy-900);
+  --bg-bar:var(--navy-800);
+  --bg-dash:var(--navy-600);
+  --bg-item-hover:var(--navy-500);
+  --bg-item-active:var(--teal-400);
+  --border-default:var(--navy-500);
+  --border-strong:var(--slate-500);
+  --text-primary:var(--blue-100);
+  --text-muted:var(--slate-300);
+  --text-on-accent:var(--navy-900);
+  --accent:var(--teal-400);
+  --truss-logo-structure:var(--blue-100);
+  --truss-logo-web:var(--teal-300);
+}
+
+/* ---------- pixel-stepped corners ----------
+   clip-path clips the border too, so the dash draws its
+   1px edge as a border-coloured layer behind an inset fill. */
+.pixel-dash  { clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    calc(100% - 12px) 4px,
+    calc(100% - 8px) 4px,
+    calc(100% - 8px) 8px,
+    calc(100% - 4px) 8px,
+    calc(100% - 4px) 12px,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 4px) calc(100% - 12px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 12px) calc(100% - 4px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    12px calc(100% - 4px),
+    8px calc(100% - 4px),
+    8px calc(100% - 8px),
+    4px calc(100% - 8px),
+    4px calc(100% - 12px),
+    0 calc(100% - 12px),
+    0 12px,
+    4px 12px,
+    4px 8px,
+    8px 8px,
+    8px 4px,
+    12px 4px,
+    12px 0); }
+.pixel-item  { clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    calc(100% - 6px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 6px,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    6px calc(100% - 3px),
+    3px calc(100% - 3px),
+    3px calc(100% - 6px),
+    0 calc(100% - 6px),
+    0 6px,
+    3px 6px,
+    3px 3px,
+    6px 3px,
+    6px 0); }
+
+/* ---------- floating chrome ---------- */
+.truss-chrome, .truss-chrome *, .truss-chrome *::before { box-sizing: border-box; }
+
+.truss-chrome {
+  position: fixed; inset: 16px 24px auto 24px;
+  display: flex; align-items: center; gap: 16px;
+  pointer-events: none;              /* page stays clickable between the parts */
+  background: none; border: none;    /* floating: no plate, no rule */
+  z-index: 40;
+}
+.truss-chrome > * { pointer-events: auto; }
+.truss-chrome__slot { flex: 1 1 0; display: flex; align-items: center; }
+.truss-chrome__slot--right { justify-content: flex-end; }
+
+.truss-lockup { flex: none; display: flex; align-items: center; gap: 11px; }
+.truss-lockup svg { width: 32px; height: 32px; display: block; }
+.truss-wordmark {
+  font: 700 19px/1 "Chakra Petch", system-ui, sans-serif;
+  letter-spacing: .14em; color: var(--text-primary);
+}
+
+/* ---------- the dash ---------- */
+.dash {
+  position: relative; display: flex; align-items: center; gap: 4px;
+  flex: none;                                  /* never let the chrome squeeze it */
+  padding: 6px; height: var(--dash-h);
+  background: var(--border-default);          /* edge layer */
+  filter: drop-shadow(0 6px 14px rgb(10 18 30 / .22));
+  transition: width var(--expand-ms) var(--expand-ease);
+}
+.dash::before {
+  content: ""; position: absolute; inset: 1px;
+  background: var(--bg-dash);
+  clip-path: inherit;
+}
+.dash > * { position: relative; }
+
+/* ---------- nav item: icon-only, expands on hover ---------- */
+.dash-item {
+  flex: none;
+  display: flex; align-items: center; justify-content: center; gap: 0;
+  width: var(--item-w-collapsed); height: var(--item-h);
+  overflow: hidden; white-space: nowrap; border: 0; cursor: pointer;
+  background: transparent; color: var(--text-muted);
+  transition: width var(--expand-ms) var(--expand-ease),
+              background-color 140ms linear, color 140ms linear;
+}
+.dash-item svg { width: 18px; height: 18px; flex: none; }
+.dash-item { padding: 0; text-decoration: none; }
+.dash-item__label {
+  font: 600 12px/1 "Chakra Petch", system-ui, sans-serif;
+  letter-spacing: .08em;
+  /* collapsed labels must take ZERO width, not just zero opacity — otherwise they
+     stay in the flex line and push the icon out of its own button. */
+  max-width: 0; margin-left: 0; opacity: 0; overflow: hidden; white-space: nowrap;
+  transition: max-width var(--expand-ms) var(--expand-ease),
+              margin-left var(--expand-ms) var(--expand-ease), opacity 140ms linear;
+}
+.dash-item:hover,
+.dash-item:focus-visible { width: var(--item-w-expanded); background: var(--bg-item-hover); color: var(--text-primary); }
+.dash-item:hover .dash-item__label,
+.dash-item:focus-visible .dash-item__label { max-width: 90px; margin-left: 8px; opacity: 1; }
+
+.dash-item[aria-current="page"] {
+  width: var(--item-w-expanded);
+  background: var(--bg-item-active); color: var(--text-on-accent);
+}
+.dash-item[aria-current="page"] .dash-item__label { max-width: 90px; margin-left: 8px; opacity: 1; }
+
+/* ---------- theme cog ---------- */
+.cog {
+  flex: none;
+  display: grid; place-items: center;
+  width: 34px; height: 34px; cursor: pointer;
+  /* styles.css styles every <button> with padding/border/radius — reset it here
+     or the 18px glyph sits 12px/9px in instead of centred. */
+  padding: 0; border: 0; border-radius: 0; appearance: none;
+  background: var(--bg-dash); color: var(--text-muted);
+  transition: background-color 140ms linear, color 140ms linear;
+}
+.cog svg { width: 18px; height: 18px; transition: transform 200ms var(--expand-ease); }
+.cog:hover { background: var(--bg-item-hover); color: var(--accent); }
+.cog:hover svg { transform: rotate(22.5deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dash, .dash-item, .dash-item__label, .cog svg { transition: none; }
+}
+
+/* cog rotation wrapper (the spin is driven by React state, hover adds the nudge) */
+.cog__spin { display: grid; place-items: center; transition: transform 420ms var(--expand-ease); }
+.truss-lockup { text-decoration: none; }
+.truss-mark { display: block; }
+
+/* ---------- bridge the existing app palette onto the theme tokens ----------
+   styles.css was written dark-only with literal hexes. Rather than rewrite it,
+   the literals it repeats are re-declared here as theme-aware aliases whose DARK
+   values are the originals — so dark mode is pixel-identical to before, and only
+   light mode changes. */
+:root {
+  --app-ink:#e8eaed; --app-dim:#aab4c3; --app-panel:#12151c; --app-control:#1a1e27;
+  --app-edge:#374052; --app-invert-bg:#e8eaed; --app-invert-fg:#0b0d12; --app-amber:#f5a524;
+  --app-banner-bg:#17150e; --app-banner-edge:#4b3920; --app-banner-fg:#cabb9c; --app-badge-fg:#ffd08a;
+}
+[data-theme="light"] {
+  --app-ink:#131A24; --app-dim:#5A6B80; --app-panel:#FFFFFF; --app-control:#E3EDF5;
+  --app-edge:#C7D9E8; --app-invert-bg:#131A24; --app-invert-fg:#FFFFFF; --app-amber:#8A6100;
+  --app-banner-bg:#FBF3DE; --app-banner-edge:#D8C79A; --app-banner-fg:#6B5A2E; --app-badge-fg:#7A5F16;
+}
+
+:root { background:var(--bg-canvas); color:var(--app-ink);
+        --muted:var(--text-muted); --line:var(--border-default); --amber:var(--app-amber); }
+body { background:var(--bg-canvas); color:var(--app-ink); }
+
+.panel, .drawer { background:var(--app-panel); border-color:var(--app-edge); color:var(--app-ink); }
+button:not(.cog):not(.dash-item), .lab select {
+  background:var(--app-control); color:var(--app-ink); border-color:var(--app-edge); }
+button:not(.cog):not(.dash-item):hover:not(:disabled) { border-color:var(--accent); }
+.primary-link, .primary-button { background:var(--app-invert-bg); color:var(--app-invert-fg); }
+footer { border-top-color:var(--border-default); color:var(--text-muted); }
+
+.chord, .diagram-chord { border-color:var(--app-ink); color:var(--app-dim); }
+.load-track { background:var(--app-control); }
+.truss-diagram { background:var(--app-panel); border-color:var(--border-default); }
+.diagram-homes > div, .diagram-baseline { border-color:var(--app-edge); }
+.hero > p, .principles p, .boundary-story p, .lab .intro, .empty p, .empty { color:var(--app-dim); }
+.hero h1 span { color:var(--text-muted); }
+.status, .connection, .tiny-status, .capacity-facts small { color:var(--app-dim); }
+.member-power, .capacity-facts strong, .metrics strong { color:var(--app-ink); }
+.boundary { background:var(--app-banner-bg); border-bottom-color:var(--app-banner-edge); color:var(--app-banner-fg); }
+.badge { border-color:var(--app-banner-edge); color:var(--app-badge-fg); }
+.lab a, .card-link { color:var(--accent); }
+
+/* the chrome floats over the page, so reserve its band in the flow */
+.chrome-spacer { height: 78px; }
+@media (max-width: 760px) { .chrome-spacer { height: 132px; } }

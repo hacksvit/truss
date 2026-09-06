@@ -19,3 +19,5 @@ coverage/
 *.tsbuildinfo
 /.pio/
 /firmware/status-display/.pio/
+/candidate.pptx
+/deliverables/Truss-Pitch.pptx

@@ -72,7 +72,14 @@ def post(client, path, **fields):
 def test_real_process_kill_and_restart(live_stack):
     run, observer = live_stack
     start = until(lambda: ready(observer), 25)
-    assert start.site.observed_w == 4900
+    # member-a's heater is a binary load: its whole 650 W step does not fit in
+    # the 620 W left after its charger, so that capacity is stranded, reported,
+    # and never drawn. 4900 - 620 = 4280.
+    assert start.site.observed_w == 4280
+    assert start.site.unusable_w == 620
+    a = next(m for m in start.members if m.id == 'member-a')
+    assert a.unusable_w == 620
+    assert next(d.w for d in a.devices if d.id == 'heater') == 0
     from truss.events import read_events
 
     with observer.lock:

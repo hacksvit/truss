@@ -24,6 +24,7 @@ from .schemas import (
     StageTiming,
     CapacityEvent,
 )
+from .local_policy import unusable_w
 from .api_models import (
     Snapshot,
     SiteView,
@@ -617,6 +618,11 @@ class LiveState:
                     weight=row.weight if row else 1.0,
                     issued_w=active_lease.budget_w if active_lease else None,
                     reserved_w=reserved,
+                    unusable_w=unusable_w(
+                        self.profiles[reg.member_id], active_lease.budget_w
+                    )
+                    if active_lease
+                    else 0,
                     observed_w=meter.observed_w if meter else None,
                     observed_quality=quality,
                     sample_age_ms=meter_age,
@@ -690,6 +696,7 @@ class LiveState:
                 m.reserved_w for m in members if m.observed_quality != "fresh"
             ),
             available_for_new_grants_w=max(0, cap - total),
+            unusable_w=sum(m.unusable_w for m in members),
             exposure_w=total,
             observed_w=observed,
             observed_quality="fresh" if all_current else "unknown",

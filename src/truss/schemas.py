@@ -38,6 +38,7 @@ Rule = Literal["equal_surplus", "debt_weighted_surplus"]
 Result = Literal["applied", "rejected", "duplicate", "expired"]
 DeviceState = Literal["idle", "requested", "running", "deferred", "completing", "fault"]
 ControlPolicy = Literal["protected", "flexible", "unclassified"]
+Actuation = Literal["modulating", "binary"]
 Reason = Literal[
     "initial",
     "renewal",

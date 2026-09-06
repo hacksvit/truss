@@ -85,6 +85,7 @@ class MemberView(Model):
     target_w: W | None
     issued_w: W | None
     reserved_w: W
+    unusable_w: W = 0
     observed_w: W | None
     observed_quality: Quality
     sample_age_ms: Ms | None
@@ -108,6 +109,7 @@ class SiteView(Model):
     reserved_member_w: Nat
     unverified_member_reservation_w: Nat
     available_for_new_grants_w: W
+    unusable_w: W = 0
     exposure_w: Nat
     observed_w: Nat | None
     observed_quality: Quality

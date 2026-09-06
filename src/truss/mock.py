@@ -6,7 +6,7 @@ from pathlib import Path
 from uuid import uuid4
 from .allocator import Demand, allocate
 from .config import load_run, load_member
-from .local_policy import assign
+from .local_policy import assign, unusable_w
 from .api_models import (
     Snapshot,
     SiteView,
@@ -161,6 +161,7 @@ class MockState:
                     target_w=proposal.budgets.get(member),
                     issued_w=budget,
                     reserved_w=reserved,
+                    unusable_w=unusable_w(self.profiles[member], budget),
                     observed_w=sum(assigned.values()),
                     observed_quality=quality,
                     sample_age_ms=3000 if stale else 0,
@@ -200,6 +201,7 @@ class MockState:
                 m.reserved_w for m in members if m.status == "stale"
             ),
             available_for_new_grants_w=max(0, self.cap_w - exposure),
+            unusable_w=sum(m.unusable_w for m in members),
             exposure_w=exposure,
             observed_w=observed,
             observed_quality="unknown" if observed is None else "fresh",
