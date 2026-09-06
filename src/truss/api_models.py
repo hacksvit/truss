@@ -1,7 +1,7 @@
 """Operator-plane views. Owner M5. Constructors fill explicit output defaults only."""
 
 from typing import Literal, Annotated
-from pydantic import Field
+from pydantic import Field, model_validator
 from .schemas import (
     Model,
     ID,
@@ -37,7 +37,7 @@ class Capabilities(Model):
 class Operation(Model):
     operation_id: UUID
     run_id: UUID
-    kind: Literal["cap", "protect", "chaos", "rule", "replay", "lab"]
+    kind: Literal["cap", "protect", "chaos", "fault", "rule", "replay", "lab"]
     status: Literal["queued", "running", "applied", "rejected", "failed"]
     control_revision: Nat
     created_at: str
@@ -187,6 +187,24 @@ class CapRequest(ControlRequest):
     watts: W
 
 
+class RuleRequest(ControlRequest):
+    rule: Rule
+
+
+class FaultRequest(ControlRequest):
+    target: str
+    action: Literal["partition", "drop_acks", "delay_telemetry", "delay_grants"]
+    duration_ms: Annotated[int, Field(ge=1, le=30000)] = 8000
+    delay_ms: Annotated[int, Field(ge=0, le=10000)] = 0
+    rate: Annotated[float, Field(ge=0, le=1)] = 1.0
+
+    @model_validator(mode="after")
+    def meaningful(self):
+        if self.action.startswith("delay_") != (self.delay_ms > 0):
+            raise ValueError("A positive delay is required only for delay actions")
+        return self
+
+
 class ChaosRequest(ControlRequest):
     action: Literal[
         "kill_coordinator",
@@ -204,6 +222,10 @@ class ChaosRequest(ControlRequest):
 class LabRequest(Model):
     members: Annotated[int, Field(ge=1, le=5000)]
     seed: Nat
+    samples: Annotated[int, Field(ge=1, le=200)] = 200
+    distribution: Literal["uniform", "saturated", "skewed"] = "uniform"
+    rule: Rule = "equal_surplus"
+    cap_ratio: Annotated[float, Field(ge=0, le=1)] = 0.5
 
 
 class BenchmarkResult(Model):
@@ -218,3 +240,94 @@ class BenchmarkResult(Model):
     timer: str
     scope: str
     warmups: int
+    distribution: str = "uniform"
+    rule: Rule = "equal_surplus"
+    cap_ratio: float = 0.5
+    validation_samples_ms: list[float] = Field(default_factory=list)
+    total_samples_ms: list[float] = Field(default_factory=list)
+    requested_samples: int = 200
+
+
+class LabJob(Model):
+    job_id: UUID
+    status: Literal["running", "complete", "failed"]
+    request: LabRequest
+    created_at: str
+    finished_at: str | None = None
+    result: BenchmarkResult | None = None
+    error: str | None = None
+
+
+class ReplayRequest(Model):
+    recorded_run_id: UUID
+    from_seq: Nat = 0
+    speed: Literal[1] = 1
+
+
+class ReplaySeek(Model):
+    from_seq: Nat
+
+
+class ReplayPlayback(Model):
+    action: Literal["play", "pause"]
+
+
+class FairnessMember(Model):
+    member_id: ID
+    debt_wh: Wh
+    weight: Annotated[float, Field(ge=1, le=2)]
+
+
+class FairnessView(Model):
+    run_id: UUID
+    desired_rule: Rule
+    effective_rule: Rule
+    available: bool
+    revision: Nat
+    error: str | None
+    scale_wh: float
+    maximum_wh: float
+    frozen_gap_ms: Nat
+    meaning: str
+    members: list[FairnessMember]
+
+
+class RecordingSummary(Model):
+    recorded_run_id: UUID
+    bytes: Nat
+    replayable: bool
+
+
+class RecordingCatalog(Model):
+    items: list[RecordingSummary]
+    max_bytes: Nat
+    max_frames: Nat
+
+
+class ReplayView(Model):
+    replay_id: UUID
+    recorded_run_id: UUID
+    sha256: str
+    gap: bool
+    frame_seq: Nat
+    first_seq: Nat
+    last_seq: Nat
+    frame_count: Nat
+    playing: bool
+    position_ms: Nat
+    duration_ms: Nat
+    snapshot: Snapshot
+
+
+class ProcessView(Model):
+    name: str
+    pid: int
+    running: bool
+    exit_code: int | None
+
+
+class RuntimeView(Model):
+    run_id: UUID
+    processes: list[ProcessView]
+    evidence_error: str | None
+    recording_full: bool

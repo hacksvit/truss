@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Truss operator API",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "paths": {
     "/api/v1/health": {
@@ -159,6 +159,140 @@
         }
       }
     },
+    "/api/v1/rule": {
+      "post": {
+        "summary": "Rule",
+        "operationId": "rule_api_v1_rule_post",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faults": {
+      "post": {
+        "summary": "Faults",
+        "operationId": "faults_api_v1_faults_post",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaultRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fairness": {
+      "get": {
+        "summary": "Fairness",
+        "operationId": "fairness_api_v1_fairness_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FairnessView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runtime": {
+      "get": {
+        "summary": "Runtime",
+        "operationId": "runtime_api_v1_runtime_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/operations/{operation_id}": {
       "get": {
         "summary": "Operation",
@@ -209,6 +343,7 @@
             "required": false,
             "schema": {
               "type": "integer",
+              "minimum": 0,
               "default": 0,
               "title": "After Seq"
             }
@@ -257,6 +392,322 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BenchmarkResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lab/runs": {
+      "post": {
+        "summary": "Lab Run",
+        "operationId": "lab_run_api_v1_lab_runs_post",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lab/runs/{job_id}": {
+      "get": {
+        "summary": "Lab Result",
+        "operationId": "lab_result_api_v1_lab_runs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recordings": {
+      "get": {
+        "summary": "Recording List",
+        "operationId": "recording_list_api_v1_recordings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordingCatalog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/replays": {
+      "post": {
+        "summary": "Replay Create",
+        "operationId": "replay_create_api_v1_replays_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/replays/{replay_id}": {
+      "get": {
+        "summary": "Replay State",
+        "operationId": "replay_state_api_v1_replays__replay_id__get",
+        "parameters": [
+          {
+            "name": "replay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Replay Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Replay Close",
+        "operationId": "replay_close_api_v1_replays__replay_id__delete",
+        "parameters": [
+          {
+            "name": "replay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Replay Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/replays/{replay_id}/seek": {
+      "post": {
+        "summary": "Replay Seek",
+        "operationId": "replay_seek_api_v1_replays__replay_id__seek_post",
+        "parameters": [
+          {
+            "name": "replay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Replay Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaySeek"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/replays/{replay_id}/playback": {
+      "post": {
+        "summary": "Replay Playback",
+        "operationId": "replay_playback_api_v1_replays__replay_id__playback_post",
+        "parameters": [
+          {
+            "name": "replay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Replay Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayPlayback"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayView"
                 }
               }
             }
@@ -601,6 +1052,44 @@
           "warmups": {
             "type": "integer",
             "title": "Warmups"
+          },
+          "distribution": {
+            "type": "string",
+            "title": "Distribution",
+            "default": "uniform"
+          },
+          "rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Rule",
+            "default": "equal_surplus"
+          },
+          "cap_ratio": {
+            "type": "number",
+            "title": "Cap Ratio",
+            "default": 0.5
+          },
+          "validation_samples_ms": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Validation Samples Ms"
+          },
+          "total_samples_ms": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Total Samples Ms"
+          },
+          "requested_samples": {
+            "type": "integer",
+            "title": "Requested Samples",
+            "default": 200
           }
         },
         "additionalProperties": false,
@@ -1011,6 +1500,191 @@
         ],
         "title": "EventView"
       },
+      "FairnessMember": {
+        "properties": {
+          "member_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+            "title": "Member Id"
+          },
+          "debt_wh": {
+            "type": "number",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Debt Wh"
+          },
+          "weight": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 1.0,
+            "title": "Weight"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "member_id",
+          "debt_wh",
+          "weight"
+        ],
+        "title": "FairnessMember"
+      },
+      "FairnessView": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "desired_rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Desired Rule"
+          },
+          "effective_rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Effective Rule"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Revision"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "scale_wh": {
+            "type": "number",
+            "title": "Scale Wh"
+          },
+          "maximum_wh": {
+            "type": "number",
+            "title": "Maximum Wh"
+          },
+          "frozen_gap_ms": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Frozen Gap Ms"
+          },
+          "meaning": {
+            "type": "string",
+            "title": "Meaning"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/FairnessMember"
+            },
+            "type": "array",
+            "title": "Members"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "desired_rule",
+          "effective_rule",
+          "available",
+          "revision",
+          "error",
+          "scale_wh",
+          "maximum_wh",
+          "frozen_gap_ms",
+          "meaning",
+          "members"
+        ],
+        "title": "FairnessView"
+      },
+      "FaultRequest": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "expected_control_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Expected Control Revision"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "mock",
+              "replay"
+            ],
+            "title": "Source"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "partition",
+              "drop_acks",
+              "delay_telemetry",
+              "delay_grants"
+            ],
+            "title": "Action"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "maximum": 30000.0,
+            "minimum": 1.0,
+            "title": "Duration Ms",
+            "default": 8000
+          },
+          "delay_ms": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Delay Ms",
+            "default": 0
+          },
+          "rate": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Rate",
+            "default": 1.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "expected_control_revision",
+          "source",
+          "target",
+          "action"
+        ],
+        "title": "FaultRequest"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1023,6 +1697,72 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "LabJob": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "complete",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "request": {
+            "$ref": "#/components/schemas/LabRequest"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BenchmarkResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id",
+          "status",
+          "request",
+          "created_at"
+        ],
+        "title": "LabJob"
       },
       "LabRequest": {
         "properties": {
@@ -1037,6 +1777,39 @@
             "maximum": 9007199254740991.0,
             "minimum": 0.0,
             "title": "Seed"
+          },
+          "samples": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Samples",
+            "default": 200
+          },
+          "distribution": {
+            "type": "string",
+            "enum": [
+              "uniform",
+              "saturated",
+              "skewed"
+            ],
+            "title": "Distribution",
+            "default": "uniform"
+          },
+          "rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Rule",
+            "default": "equal_surplus"
+          },
+          "cap_ratio": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Cap Ratio",
+            "default": 0.5
           }
         },
         "additionalProperties": false,
@@ -1665,6 +2438,7 @@
               "cap",
               "protect",
               "chaos",
+              "fault",
               "rule",
               "replay",
               "lab"
@@ -1749,6 +2523,325 @@
           "created_at"
         ],
         "title": "Operation"
+      },
+      "ProcessView": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "pid": {
+            "type": "integer",
+            "title": "Pid"
+          },
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "exit_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "pid",
+          "running",
+          "exit_code"
+        ],
+        "title": "ProcessView"
+      },
+      "RecordingCatalog": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RecordingSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "max_bytes": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Max Bytes"
+          },
+          "max_frames": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Max Frames"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "max_bytes",
+          "max_frames"
+        ],
+        "title": "RecordingCatalog"
+      },
+      "RecordingSummary": {
+        "properties": {
+          "recorded_run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Recorded Run Id"
+          },
+          "bytes": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Bytes"
+          },
+          "replayable": {
+            "type": "boolean",
+            "title": "Replayable"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recorded_run_id",
+          "bytes",
+          "replayable"
+        ],
+        "title": "RecordingSummary"
+      },
+      "ReplayPlayback": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "play",
+              "pause"
+            ],
+            "title": "Action"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "ReplayPlayback"
+      },
+      "ReplayRequest": {
+        "properties": {
+          "recorded_run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Recorded Run Id"
+          },
+          "from_seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "From Seq",
+            "default": 0
+          },
+          "speed": {
+            "type": "integer",
+            "const": 1,
+            "title": "Speed",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recorded_run_id"
+        ],
+        "title": "ReplayRequest"
+      },
+      "ReplaySeek": {
+        "properties": {
+          "from_seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "From Seq"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from_seq"
+        ],
+        "title": "ReplaySeek"
+      },
+      "ReplayView": {
+        "properties": {
+          "replay_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Replay Id"
+          },
+          "recorded_run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Recorded Run Id"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "gap": {
+            "type": "boolean",
+            "title": "Gap"
+          },
+          "frame_seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Frame Seq"
+          },
+          "first_seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "First Seq"
+          },
+          "last_seq": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Last Seq"
+          },
+          "frame_count": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Frame Count"
+          },
+          "playing": {
+            "type": "boolean",
+            "title": "Playing"
+          },
+          "position_ms": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Position Ms"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Duration Ms"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/Snapshot"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "replay_id",
+          "recorded_run_id",
+          "sha256",
+          "gap",
+          "frame_seq",
+          "first_seq",
+          "last_seq",
+          "frame_count",
+          "playing",
+          "position_ms",
+          "duration_ms",
+          "snapshot"
+        ],
+        "title": "ReplayView"
+      },
+      "RuleRequest": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "expected_control_revision": {
+            "type": "integer",
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Expected Control Revision"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "mock",
+              "replay"
+            ],
+            "title": "Source"
+          },
+          "rule": {
+            "type": "string",
+            "enum": [
+              "equal_surplus",
+              "debt_weighted_surplus"
+            ],
+            "title": "Rule"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "expected_control_revision",
+          "source",
+          "rule"
+        ],
+        "title": "RuleRequest"
+      },
+      "RuntimeView": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Run Id"
+          },
+          "processes": {
+            "items": {
+              "$ref": "#/components/schemas/ProcessView"
+            },
+            "type": "array",
+            "title": "Processes"
+          },
+          "evidence_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Error"
+          },
+          "recording_full": {
+            "type": "boolean",
+            "title": "Recording Full"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "processes",
+          "evidence_error",
+          "recording_full"
+        ],
+        "title": "RuntimeView"
       },
       "SiteView": {
         "properties": {

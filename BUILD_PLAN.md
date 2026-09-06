@@ -58,9 +58,14 @@ Existing frontend tests/build are green (8 tests); these boxes mean the user's i
 
 ## 4. Optional, in this order
 
-- [ ] Authoritative service-deficit accounting and bounded debt weights, only after equal-surplus live runs pass.
-- [ ] Read-only replay UI with gap detection, only after real event logs exist.
-- [ ] Additional measured lab distributions/stage timing, only with control workload isolation.
+- [x] Inspect `~/ccode` hardware configuration; build a separate read-only ESP32 screen and USB bridge with stale/unknown handling. See `docs/esp32-display.md`.
+- [x] Upload to the user-connected ESP32; verify three real serial updates and local NO DATA expiry with replies withheld.
+- [ ] Visually inspect physical screen appearance. Firmware/serial evidence and visual observation must be distinguished. Budget at most 30 minutes; the laptop demo is independent.
+- [x] Authoritative service-deficit accounting, bounded weights and durable `/rule` control; live weighted-grant/restart tests pass.
+- [x] Read-only recorded-snapshot replay backend with gap detection, seek and play/pause.
+- [ ] Replay UI integration — Claude/frontend ownership; no backend dependency remains.
+- [x] Measured lab distributions and allocation/validation samples in a bounded subprocess; live stage timing and 5000-member coexistence test pass.
+- [x] Expose bounded delivery faults, process health, durable historical operation lookup and hardened API input handling.
 - [x] Scope decision: AI and SGLang removed at the user’s request. Use explicit protection rules and deterministic evidence explanations.
 
 CP-SAT, real appliance adapters, medical-device classification, mains switching and cloud paths stay out. These do not become implied requirements because an optional box exists.
@@ -76,3 +81,5 @@ CP-SAT, real appliance adapters, medical-device classification, mains switching 
 | M5 / Codex evidence/API | fixture events + independent oracle | B8 projection and B10 reproducible evidence |
 
 If a backend gate fails, keep dependent boxes unchecked and fix the smallest failing trace. Do not disable validation or rewrite evidence. At 3 a.m., use `docs/runbook.md`. The first cuts are extra lab, replay polish and debt weighting; the reservation/expiry/protected-baseline checks are never scope cuts.
+
+Current frontend owner: Claude, as directed by the user. Backend work does not edit `web/`. See `docs/backend-extensions.md` for the latest parallel-build interfaces and limitations.

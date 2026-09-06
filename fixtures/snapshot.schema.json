@@ -1116,6 +1116,7 @@
             "cap",
             "protect",
             "chaos",
+            "fault",
             "rule",
             "replay",
             "lab"

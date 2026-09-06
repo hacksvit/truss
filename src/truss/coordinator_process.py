@@ -9,8 +9,10 @@ from .runtime_common import ProcessContext
 from .authority_store import AuthorityStore
 from .coordinator import Coordinator
 from .allocator import Demand
+from .fairness import ServiceDeficit
 from .schemas import (
     Offer,
+    Status,
     LeaseRequest,
     Lease,
     LeaseRef,
@@ -38,11 +40,18 @@ def run(manifest):
     c.start(
         [
             c.root + "/member/+/offer",
+            c.root + "/member/+/status",
             c.root + "/member/+/lease/request",
             c.root + "/event/capacity",
         ]
     )
     offers = {}
+    statuses = {}
+    try:
+        saved_debt = store.get("debt")
+    except ValueError:
+        saved_debt = {}
+    debt = ServiceDeficit(c.policy.members, time.monotonic_ns(), saved_debt)
     retired = {m: set() for m in registrations}
     grants = {}
     version = 0
@@ -52,9 +61,28 @@ def run(manifest):
     try:
         while c.running:
             now = time.monotonic_ns()
+            debt.advance(now)
             control = store.get("control", {"revision": 1, "cap_w": c.policy.cap_w})
             cap = control["cap_w"]
             cap_revision = control["revision"]
+            rule = (
+                control.get("rule", "equal_surplus")
+                if debt.enabled
+                else "equal_surplus"
+            )
+
+            def capture():
+                debt.capture(
+                    now,
+                    offers,
+                    statuses,
+                    core.ledger,
+                    cap,
+                    c.policy.reserve_w,
+                    c.transport.connected.is_set(),
+                )
+
+            capture()
 
             def demands():
                 return [
@@ -65,13 +93,32 @@ def run(manifest):
                         if m.member_id in offers
                         and now - offers[m.member_id][1] < 3_000_000_000
                         else m.floor_w,
+                        debt.weight(m.member_id, rule),
                     )
                     for m in c.policy.members
                 ]
 
             for message in c.drain():
                 now = time.monotonic_ns()
-                if isinstance(message, Offer):
+                debt.advance(now)
+                if isinstance(message, Status):
+                    previous = statuses.get(message.publisher_id)
+                    if (
+                        previous
+                        and previous[0].publisher_boot_id == message.publisher_boot_id
+                    ):
+                        if message.source == "will":
+                            if previous[0].connection_id != message.connection_id:
+                                continue
+                        elif message.seq <= previous[0].seq:
+                            continue
+                    if message.publisher_boot_id in retired.get(
+                        message.publisher_id, set()
+                    ):
+                        continue
+                    statuses[message.publisher_id] = (message, now)
+                    capture()
+                elif isinstance(message, Offer):
                     reg = registrations.get(message.member_id)
                     if (
                         not reg
@@ -79,6 +126,9 @@ def run(manifest):
                         or message.floor_w != reg.floor_w
                         or message.useful_w > reg.max_w
                     ):
+                        if reg:
+                            offers.pop(message.member_id, None)
+                            capture()
                         continue
                     if message.member_boot_id in retired[message.member_id]:
                         continue
@@ -92,6 +142,7 @@ def run(manifest):
                         if previous[0].member_boot_id != message.member_boot_id:
                             retired[message.member_id].add(previous[0].member_boot_id)
                     offers[message.member_id] = (message, now)
+                    capture()
                 elif isinstance(message, LeaseRequest):
                     offered = offers.get(message.member_id)
                     if (
@@ -122,6 +173,12 @@ def run(manifest):
                     )
                     cap = control["cap_w"]
                     cap_revision = control["revision"]
+                    rule = (
+                        control.get("rule", "equal_surplus")
+                        if debt.enabled
+                        else "equal_surplus"
+                    )
+                    capture()
                     frozen = demands()
                     proposal = core.propose(frozen, cap)
                     if not proposal.feasible:
@@ -129,6 +186,7 @@ def run(manifest):
                         continue
                     amount = proposal.budgets[message.member_id]
                     before = core.ledger.exposure(now)[message.member_id]
+                    admission_started = time.perf_counter_ns()
                     try:
                         reservation = core.ledger.admit(
                             member_id=message.member_id,
@@ -143,6 +201,8 @@ def run(manifest):
                     except ValueError:
                         store.db.rollback()
                         continue
+                    admission_ms = (time.perf_counter_ns() - admission_started) / 1e6
+                    capture()
                     version += 1
                     plan_version += 1
                     plan_id = f"p{epoch}-{plan_version}"
@@ -165,6 +225,8 @@ def run(manifest):
                             "cap_w": cap,
                             "cap_revision": cap_revision,
                             "policy_hash": policy_hash,
+                            "rule": rule,
+                            "debt": debt.dump(),
                         }
                     )
                     basis = Basis(
@@ -182,13 +244,13 @@ def run(manifest):
                             - c.policy.reserve_w
                             - sum(m.floor_w for m in c.policy.members),
                         ),
-                        rule="equal_surplus",
-                        debt_scale_wh=100.0,
+                        rule=rule,
+                        debt_scale_wh=float(debt.scale),
                         weight_cap=2.0,
                         member_floor_w=reg.floor_w,
                         member_useful_w=offered[0].useful_w,
-                        member_debt_wh=0.0,
-                        member_weight=1.0,
+                        member_debt_wh=float(debt.values[message.member_id]),
+                        member_weight=float(debt.weight(message.member_id, rule)),
                         proposed_budget_w=amount,
                         issued_budget_w=amount,
                         reservation_before_w=before,
@@ -209,6 +271,7 @@ def run(manifest):
                         )
                     )
                     grants[key] = (lease, reservation.release_ns)
+                    debt.persist(store)
                     store.db.commit()
                     # Emit the actual plan referenced by this grant, not a later
                     # periodic summary carrying an unrelated plan identifier.
@@ -228,8 +291,8 @@ def run(manifest):
                                 member_id=demand.member_id,
                                 floor_w=demand.floor_w,
                                 useful_w=demand.useful_w,
-                                debt_wh=0.0,
-                                weight=1.0,
+                                debt_wh=float(debt.values[demand.member_id]),
+                                weight=float(demand.weight),
                                 target_w=proposal.budgets[demand.member_id],
                                 issued_w=current.budget_w if current else None,
                                 reserved_w=exposure[demand.member_id],
@@ -248,7 +311,7 @@ def run(manifest):
                                 cap_revision=cap_revision,
                                 epoch=epoch,
                                 status="admitted",
-                                rule="equal_surplus",
+                                rule=rule,
                                 cap_w=cap,
                                 measurement_reserve_w=c.policy.measurement_reserve_w,
                                 external_bound_w=c.policy.external_bound_w,
@@ -264,10 +327,7 @@ def run(manifest):
                                     limit_after_reserves_w=cap - c.policy.reserve_w,
                                 ),
                                 timing=StageTiming(
-                                    input_validation_ms=None,
-                                    allocation_ms=None,
-                                    plan_validation_ms=None,
-                                    admission_ms=None,
+                                    **(core.timing | {"admission_ms": admission_ms}),
                                 ),
                             )
                         )
@@ -275,6 +335,8 @@ def run(manifest):
                     # This publish may fail; the reservation remains until its hold ends.
                     c.publish(lease)
             now = time.monotonic_ns()
+            debt.advance(now)
+            capture()
             grants = {key: value for key, value in grants.items() if now < value[1]}
             if now >= next_status:
                 recovering = now < core.ledger.recover_until_ns
@@ -291,7 +353,8 @@ def run(manifest):
                 )
                 next_status = now + 500_000_000
             if now >= next_plan:
-                proposal = core.propose(demands(), cap)
+                frozen = demands()
+                proposal = core.propose(frozen, cap)
                 exposure = core.ledger.exposure(now)
                 plan_version += 1
                 recovering = now < core.ledger.recover_until_ns
@@ -310,12 +373,10 @@ def run(manifest):
                             member_id=m.member_id,
                             floor_w=m.floor_w,
                             useful_w=next(
-                                d.useful_w
-                                for d in demands()
-                                if d.member_id == m.member_id
+                                d.useful_w for d in frozen if d.member_id == m.member_id
                             ),
-                            debt_wh=0.0,
-                            weight=1.0,
+                            debt_wh=float(debt.values[m.member_id]),
+                            weight=float(debt.weight(m.member_id, rule)),
                             target_w=proposal.budgets.get(m.member_id),
                             issued_w=latest.budget_w if latest else None,
                             reserved_w=exposure[m.member_id],
@@ -327,11 +388,13 @@ def run(manifest):
                 snapshot_hash = canonical_hash(
                     {
                         "demands": [
-                            d.__dict__ | {"weight": str(d.weight)} for d in demands()
+                            d.__dict__ | {"weight": str(d.weight)} for d in frozen
                         ],
                         "cap_w": cap,
                         "cap_revision": cap_revision,
                         "policy_hash": policy_hash,
+                        "rule": rule,
+                        "debt": debt.dump(),
                     }
                 )
                 c.publish(
@@ -349,7 +412,7 @@ def run(manifest):
                             else "waiting_release"
                             if recovering or total > cap
                             else "admitted",
-                            rule="equal_surplus",
+                            rule=rule,
                             cap_w=cap,
                             measurement_reserve_w=c.policy.measurement_reserve_w,
                             external_bound_w=c.policy.external_bound_w,
@@ -368,15 +431,14 @@ def run(manifest):
                                 limit_after_reserves_w=max(0, cap - c.policy.reserve_w),
                             ),
                             timing=StageTiming(
-                                input_validation_ms=None,
-                                allocation_ms=None,
-                                plan_validation_ms=None,
-                                admission_ms=None,
+                                **core.timing,
                             ),
                         )
                     ),
                     retain=True,
                 )
+                with store.db:
+                    debt.persist(store)
                 next_plan = now + 500_000_000
             time.sleep(0.02)
     finally:

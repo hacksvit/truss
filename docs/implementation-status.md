@@ -1,13 +1,13 @@
 # Current implementation status
 
-6 September 2026. **The core backend now runs through real local MQTT with independent virtual plant processes.** The frontend remains a labelled mock starting point for the user's work after 9. The build started after the user authorised implementation during the hackathon; no commit or history rewrite was made. This status supersedes the earlier scaffold-only handoff.
+6 September 2026. **The core backend now runs through real local MQTT with independent virtual plant processes.** Claude is now working on the frontend; this backend update does not edit or re-audit its files. The build started after the user authorised implementation during the hackathon; Codex made no commit or history rewrite. The user subsequently committed the basic backend. This status supersedes the earlier scaffold-only handoff.
 
 ## Implemented backend
 
 | Area | What exists | Owner |
 |---|---|---|
 | Contract | All 17 repaired MQTT variants, strict Pydantic validation, generated JSON Schema/OpenAPI, valid/invalid fixtures | M1 |
-| Allocation | Sorted weighted-surplus water-filling, exact rational target, downward watt rounding, independent validator; live equal weights | M1 |
+| Allocation | Sorted weighted-surplus water-filling, exact rational target, downward watt rounding, independent validator; default equal weights; optional persisted service-deficit weighting | M1 |
 | Authority | Fixed registered baselines; request-anchored 6000 ms lease; conservative max-per-member reservation; immutable grant retries; no ack-based reclaim | M1/M3 |
 | Coordinator | Separate MQTT process; fresh offers; durable singleton/epoch; serialized admission against committed cap; 6400 ms recovery on every boot | M1 |
 | Member | Separate household process; private profiles, aggregate offers, boot/binding checks, anchored requests, bounded ceilings and device commands | M3 |
@@ -32,13 +32,13 @@ Live cap acceptance means **desired cap committed**. Existing authority can rema
 
 ## Deliberate remaining cuts
 
-- Live rule is equal surplus. The allocator accepts fixed weights in [1,2], but authoritative time-integrated debt is not implemented. No long-run debt-fairness claim.
+- Live defaults to equal surplus. Authoritative time-integrated service-deficit weighting is now selectable with a cap of 2. Credits are checkpointed authorization history, not measured sacrifice; no guaranteed repayment claim. See [backend extensions](backend-extensions.md).
 - Protected/unclassified policy is fixed for the full run. Private profiles are copied into the run directory at startup, so editing source config cannot change protection during a member/plant restart. New policy requires a new reviewed run. No runtime downgrade or criticality classifier.
-- Replay provides deterministic read-only event/latest-topic reconstruction, not a complete interactive timeline or exact replay of time-dependent live UI metrics.
-- Lab measures only the pure allocator, on the mock API. Dedicated live benchmark isolation and end-to-end stage timings are not implemented; live lab capability remains false.
+- Replay now provides separately recorded operator snapshots with immutable sessions, seek and 1× play/pause. Values and ages are historical at each recorded frame. Existing raw-event reconstruction remains separate; gaps are not filled and old runs without snapshots have no invented UI recording.
+- Lab runs in a bounded lower-priority subprocess on live/mock, with uniform/saturated/skewed scenarios and separate allocation/validation samples. Live planner stage durations are measured. Neither is end-to-end latency, and sharing the same PC is not a real-time resource guarantee.
 - AI/SGLang were removed at the user’s request. No model runtime, feature flag, endpoint or future integration branch is required.
-- CP-SAT, binary/non-interruptible appliance scheduling, deadline guarantees, hardware and cloud paths remain cut.
-- The UI is still wired to mock. [Frontend handoff](frontend-handoff.md) identifies source, proxy, wording and action changes for the user; no live result is hidden behind the mock banner.
+- CP-SAT, binary/non-interruptible appliance scheduling, deadline guarantees, hardware appliance control and cloud paths remain cut. An optional read-only ESP32 screen now displays aggregate virtual status over USB; it is outside the authority path. See [display evidence and setup](esp32-display.md).
+- The last backend handoff left the UI wired to mock. Claude owns subsequent UI changes; current UI source wiring is not re-asserted here. [Frontend handoff](frontend-handoff.md) and [backend extensions](backend-extensions.md) define the available backend behavior.
 - The current backend has one local operator and trusted processes. No multi-host control clocks, production authentication/TLS deployment, multi-worker API, automatic orphan takeover or rolling registry changes are claimed.
 - Queued chaos operations survive in SQLite; if the API crashes between queuing and performing an action, retries return that queued record rather than silently performing it twice. Manual reconciliation is required. Cap transactions are atomic and durable.
 - JSONL evidence failures stop assurances and stale out the view; they do not grant authority. Telemetry gaps caused by a broker outage are unknown observations, not proof of zero draw.

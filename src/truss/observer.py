@@ -12,6 +12,7 @@ from .events import EventLog
 from .clock import domain_id
 from .config import load_member
 from .transport import topic_for
+from .fairness import ServiceDeficit
 from .schemas import (
     Status,
     Lease,
@@ -69,6 +70,8 @@ class LiveState:
         self.gaps = 0
         self.failure = None
         self.log = EventLog(run.directory / "events.jsonl")
+        self.snapshot_log = EventLog(run.directory / "snapshots.jsonl")
+        self.recording_full = False
         self.sample_key = None
         self.eligible = 0
         self.within = 0
@@ -117,7 +120,31 @@ class LiveState:
                         self.ingest(m, time.monotonic_ns())
                     now = time.monotonic_ns()
                     if now >= next_sample:
-                        self._snapshot(now)
+                        snapshot = self._snapshot(now)
+                        # This is a separate operator-view recording, never read by
+                        # the coordinator. Keep it finite for a long-running demo.
+                        from .recordings import MAX_RECORDING_BYTES, MAX_FRAMES
+
+                        if not self.recording_full:
+                            if self.snapshot_log.seq >= MAX_FRAMES or (
+                                self.snapshot_log.path.exists()
+                                and self.snapshot_log.path.stat().st_size
+                                + len(snapshot.model_dump_json())
+                                + 1024
+                                > MAX_RECORDING_BYTES
+                            ):
+                                self.recording_full = True
+                            else:
+                                self.snapshot_log.append(
+                                    run_id=self.run_id,
+                                    received_at=utc_now(),
+                                    received_mono_ns=str(now),
+                                    kind="snapshot",
+                                    topic=None,
+                                    payload_schema="truss.ui_snapshot.v1",
+                                    payload=snapshot.model_dump(by_alias=True),
+                                    correlation_id=None,
+                                )
                         next_sample = now + 500_000_000
                 time.sleep(0.025)
             except Exception as exc:
@@ -252,6 +279,8 @@ class LiveState:
                     raise ValueError("idempotency_conflict")
                 return Operation.model_validate(json.loads(old[1]))
             current = store.get("control")
+            if kind not in ("cap", "rule", "chaos", "fault"):
+                raise ValueError("unsupported")
             if (
                 body.run_id != self.run_id
                 or body.source != "live"
@@ -276,19 +305,40 @@ class LiveState:
             ):
                 store.db.rollback()
                 raise ValueError("unknown_member")
+            if (
+                kind == "chaos"
+                and "member" not in body.action
+                and body.member_id is not None
+            ):
+                raise ValueError("unexpected_member")
+            if kind == "fault":
+                self.run.validate_fault(
+                    body.target, body.action, body.duration_ms, body.delay_ms, body.rate
+                )
+            if kind == "rule" and body.rule == "debt_weighted_surplus":
+                try:
+                    saved = store.get("debt")
+                except ValueError:
+                    saved = {}
+                if not ServiceDeficit(self.policy.members, 0, saved).enabled:
+                    raise ValueError("debt_unavailable")
             current["revision"] += 1
             if kind == "cap":
                 current["cap_w"] = body.watts
+            if kind == "rule":
+                current["rule"] = body.rule
             operation = Operation(
                 operation_id=str(uuid4()),
                 run_id=self.run_id,
                 kind=kind,
-                status="applied" if kind == "cap" else "queued",
+                status="applied" if kind in ("cap", "rule") else "queued",
                 control_revision=current["revision"],
                 created_at=utc_now(),
-                finished_at=utc_now() if kind == "cap" else None,
+                finished_at=utc_now() if kind in ("cap", "rule") else None,
                 message="Desired cap committed; old authority must expire before compliance is claimed."
                 if kind == "cap"
+                else "Desired allocation rule committed; existing leases remain reserved."
+                if kind == "rule"
                 else "Owned process action queued.",
             )
             store.db.execute(
@@ -316,9 +366,18 @@ class LiveState:
                     # Notification is best effort. SQLite commit remains authoritative
                     # even when broker loss prevents the event from being delivered.
                     self.publisher.publish(event)
-            if kind == "chaos":
+            if kind in ("chaos", "fault"):
                 try:
-                    self.run.act(body.action, body.member_id)
+                    if kind == "chaos":
+                        self.run.act(body.action, body.member_id)
+                    else:
+                        self.run.set_fault(
+                            body.target,
+                            body.action,
+                            body.duration_ms,
+                            body.delay_ms,
+                            body.rate,
+                        )
                     operation = operation.model_copy(
                         update={
                             "status": "applied",
@@ -340,6 +399,48 @@ class LiveState:
                         (operation.model_dump_json(), key),
                     )
             return operation
+        finally:
+            store.close()
+
+    def get_operation(self, operation_id):
+        # The visible tail is not the durable lookup index.
+        with sqlite3.connect(self.c.manifest["authority_path"]) as db:
+            row = db.execute(
+                "SELECT result FROM operations WHERE json_extract(result, '$.operation_id')=?",
+                (operation_id,),
+            ).fetchone()
+        return Operation.model_validate_json(row[0]) if row else None
+
+    def fairness_state(self):
+        store = AuthorityStore(self.c.manifest["authority_path"])
+        try:
+            try:
+                saved = store.get("debt")
+            except ValueError:
+                saved = {}
+            debt = ServiceDeficit(self.policy.members, 0, saved)
+            control = store.get("control")
+            rule = control.get("rule", "equal_surplus")
+            return {
+                "run_id": self.run_id,
+                "desired_rule": rule,
+                "effective_rule": rule if debt.enabled else "equal_surplus",
+                "available": debt.enabled and saved is not None,
+                "revision": debt.revision,
+                "error": debt.error,
+                "scale_wh": float(debt.scale),
+                "maximum_wh": float(debt.maximum),
+                "frozen_gap_ms": debt.frozen_gap_ns // 1_000_000,
+                "meaning": "Withheld authorization relative to equal-surplus reference; not measured energy sacrifice",
+                "members": [
+                    {
+                        "member_id": m,
+                        "debt_wh": float(v),
+                        "weight": float(debt.weight(m, rule)),
+                    }
+                    for m, v in debt.values.items()
+                ],
+            }
         finally:
             store.close()
 
@@ -512,6 +613,8 @@ class LiveState:
                     firm_w=reg.floor_w,
                     useful_w=row.useful_w if row else reg.max_w,
                     target_w=row.target_w if row else None,
+                    debt_wh=row.debt_wh if row else 0.0,
+                    weight=row.weight if row else 1.0,
                     issued_w=active_lease.budget_w if active_lease else None,
                     reserved_w=reserved,
                     observed_w=meter.observed_w if meter else None,
@@ -603,9 +706,11 @@ class LiveState:
             compliance=compliance,
             deficit_w=deficit,
             affected_members=[m.id for m in members] if deficit else [],
-            rule="equal_surplus",
+            rule=plan.rule if rows else control.get("rule", "equal_surplus"),
             plan_id=plan.plan_id if plan else None,
-            timing=StageTiming(
+            timing=plan.timing
+            if rows
+            else StageTiming(
                 input_validation_ms=None,
                 allocation_ms=None,
                 plan_validation_ms=None,
@@ -642,5 +747,7 @@ class LiveState:
                 else "pending",
                 replay_gaps=self.gaps,
             ),
-            capabilities=Capabilities(chaos=True),
+            capabilities=Capabilities(
+                chaos=True, debt_weighting=True, replay=True, lab=True
+            ),
         )

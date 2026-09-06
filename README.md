@@ -9,6 +9,11 @@
 
 ## The one-paragraph version
 
+Optional physical status display: the existing ESP32-S3/GC9A01 screen can show
+aggregate virtual-site status over USB. Setup, exact wiring, firmware and claim
+limits are in [ESP32 display](docs/esp32-display.md). This peripheral has no
+control authority and needs no new electronic components.
+
 A hostel block, an apartment stack, or a small microgrid shares one constrained
 supply. When that supply shrinks — an inverter cuts in, a feeder browns out, a
 generator takes over — every home decides alone, and the result is an overload
@@ -20,7 +25,7 @@ detail, keeps that detail private, and publishes one thing — a **flexibility
 offer**. A **coordinator** proposes a weighted max-min allocation of surplus
 above registered floors, then an independent reservation gate decides what can
 be issued. A **lease** expires six seconds after the member's request on its
-own monotonic clock. The planned live processes command and measure virtual devices.
+own monotonic clock. The live processes command and measure virtual devices.
 If a lease is not renewed, the member falls back to its safe floor on its own,
 without being told.
 
@@ -131,3 +136,5 @@ For the real backend, install Mosquitto (or use the pinned local-cache helper
 
 Follow [BUILD_PLAN.md](BUILD_PLAN.md) in order. Your frontend handoff is in
 [docs/frontend-handoff.md](docs/frontend-handoff.md).
+
+Backend additions: persisted catch-up credits and rule control, bounded fault injection, read-only recorded replay and isolated benchmark jobs are documented in [backend extensions](docs/backend-extensions.md). Claude owns frontend integration; these features are available through the API.

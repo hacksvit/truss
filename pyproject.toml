@@ -11,9 +11,11 @@ dependencies = ["pydantic>=2.10,<3", "fastapi>=0.115,<1", "uvicorn[standard]>=0.
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "hypothesis>=6,<7"]
+display = ["pyserial==3.5"]
 
 [project.scripts]
 truss = "truss.cli:main"
+truss-display = "truss.display_bridge:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

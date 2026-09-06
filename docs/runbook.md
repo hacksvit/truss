@@ -42,7 +42,7 @@ Open `http://127.0.0.1:8000/console`. `/` is the overview; `/lab` runs measured 
 | Frozen countdown after closing a process | In live integration, check the **independent plant** and freshness. In current mock, restart only its server | Claim local physical expiry from an animation |
 | Test fails before a demo | Preserve the failure output/seed; cut the dependent feature and use the labelled mock fallback | Remove assertions, edit measurements or unskip empty integration tests |
 | JSONL tail truncated | Preserve original file; record a gap and begin a new segment | Repair history in place and claim exact replay |
-| Lab timeout | Use 5/50 members; keep raw partial count and scope. Do not benchmark alongside live timing claims until isolated | Plot missing samples as zeros or assert flat scaling |
+| Lab timeout | Use 5/50 members; keep raw partial count and scope. Worker isolation now exists, but the benchmark still shares the same physical PC; label that load during timing claims | Plot missing samples as zeros or assert flat scaling |
 | Asked for an AI feature | Explain the explicit non-AI scope and show recorded arithmetic | Add a model or classification path during final integration |
 
 ## Broker details
@@ -56,3 +56,7 @@ The checked-in `config/mosquitto.conf` is a manual template, not the auto-starte
 Never delete the authority database to escape a recovery delay. Never change run/registry identity underneath active members. Never restart all plants just because the coordinator is down; they must outlive it. Every coordinator boot claims a durable epoch and starts a full 6400 ms conservative wait. A second crash starts the wait again. Expiry/hold equations and assumptions are in plan 18. If the clock domain changes or enforcement lateness exceeds 250 ms, mark the run unverified and withdraw its timing claim.
 
 At hour 30, cut optional work if core evidence is incomplete. At hour 36, freeze dependencies and feature changes. Last hours belong to independent runs, recording and rehearsal. BUILD_PLAN.md is the active order. AI/SGLang were removed; optional work means debt, replay or additional lab measurement only.
+
+## Optional backend controls now available
+
+See [backend extensions](backend-extensions.md) for complete calls. Use GET `/api/v1/fairness` before enabling debt weights, GET `/api/v1/runtime` for actual child status and recording limits, and GET `/api/v1/recordings` for replayable snapshot archives. All live changes need the latest control revision and an idempotency key. Switch to equal_surplus if debt is unavailable; do not wipe authority storage. Replay creation never stops the live run, and replay snapshots cannot submit controls. Close unused replay sessions after four sessions. Benchmark jobs allow one worker and retain 32 results; a timeout is a failed measurement, not zero latency. Claude owns frontend builds; backend debugging should not overwrite its UI.

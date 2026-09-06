@@ -31,6 +31,11 @@ OWNERS = {
     "faults": "M2",
     "cli": "M2",
     "__init__": "M1",
+    "display_bridge": "M5",
+    "fairness": "M1",
+    "lab_jobs": "M5",
+    "lab_worker": "M5",
+    "recordings": "M5",
 }
 
 
@@ -51,12 +56,41 @@ def main():
         "M5",
         "Checked initial, leased, stale, offline, recovering and infeasible UI fixtures",
     )
+    purposes.update(
+        {
+            "platformio.ini": (
+                "M2",
+                "Pinned ESP32-S3 round-screen build and explicit USB upload",
+            ),
+            "status_protocol.h": (
+                "M2",
+                "Bounded ASCII parser and request-anchored display freshness",
+            ),
+            "main.cpp": ("M2", "Read-only GC9A01 status renderer and USB polling loop"),
+            "protocol_test.cpp": (
+                "M2",
+                "Native malformed/stale/duplicate/clock-rollover display regressions",
+            ),
+        }
+    )
     files = []
-    for folder in ("src", "web", "tests", "fixtures", "config", "docs", "scripts"):
+    for folder in (
+        "src",
+        "web",
+        "tests",
+        "fixtures",
+        "config",
+        "docs",
+        "scripts",
+        "firmware",
+    ):
         for p in (ROOT / folder).rglob("*"):
             if (
                 not p.is_file()
-                or any(x in p.parts for x in ("node_modules", "dist", "__pycache__"))
+                or any(
+                    x in p.parts
+                    for x in ("node_modules", "dist", "__pycache__", ".pio")
+                )
                 or p.suffix in (".pyc",)
                 or "egg-info" in str(p)
             ):

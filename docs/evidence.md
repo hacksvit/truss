@@ -47,3 +47,11 @@ Browser visual inspection was blocked by the in-app browser's local-URL policy. 
 The final test event log and independent plant-state records were copied to ignored `runtime/verification-2026-09-06/`; its summary records counts and hashes. Maximum reported virtual expiry lateness in that run was **19.7149 ms**. That finite observed maximum does not establish a universal scheduler bound. Event-log SHA-256: `84e307b4516f7d6f3c14677203578a2eddc4a3b0296029fc045a9e9b050aa96e`.
 
 Live and mock HTTP routes/assets and real WebSocket hello/ping/pong/snapshot were checked against the running servers. Python formatting preserved identical ASTs; unused-import/undefined-name checks passed.
+
+## Optional ESP32 display verification
+
+The connected ESP32-S3 was flashed with the new read-only GC9A01 firmware. Three live serial replies were accepted; withholding further replies caused the firmware to report NO_DATA 2.676 seconds after the last poll. Seven new display tests and the three existing API tests passed together (10 tests). This is firmware/serial evidence; physical pixels were not visually inspected. Full details, limits and the firmware hash are in [ESP32 display](esp32-display.md); raw serial records are in ignored `runtime/display-verification.json`. No safety-core behavior or frontend contract changed.
+
+## Backend extension verification
+
+The expanded full backend suite passed **55 tests, 0 skipped**, in **95.32 seconds**. This includes real weighted grants, durable credit restoration through coordinator restart, operation lookup beyond the visible tail, recorded replay creation, bounded fault controls and a 5000-member isolated benchmark while fresh virtual meter observations continued. The existing broker/expiry/protected-baseline tests also passed. After adding the replay clock regression and explicit response schemas, the focused extension/live/API suite passed **10 tests** in **23.38 seconds**. A final API guard check passed **8 tests**. These are overlapping runs, not a claim of 73 distinct tests. Logs and a summary are saved in ignored `runtime/backend-extension-verification/`. Two dependency deprecation warnings remain. Frontend files were left to Claude.

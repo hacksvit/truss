@@ -110,7 +110,10 @@ class TrussRun:
         )
         authority = self.directory / "authority.sqlite"
         store = AuthorityStore(authority)
-        store.set("control", {"revision": 1, "cap_w": self.policy.cap_w})
+        store.set(
+            "control",
+            {"revision": 1, "cap_w": self.policy.cap_w, "rule": "equal_surplus"},
+        )
         store.close()
         manifest = dict(
             run_id=self.policy.run_id,
@@ -218,16 +221,26 @@ class TrussRun:
             self.start_child(name)
         self.write_processes()
 
-    def set_fault(self, target, action, duration_ms=8000, delay_ms=0, rate=1.0):
+    def validate_fault(self, target, action, duration_ms=8000, delay_ms=0, rate=1.0):
         from .faults import DeliveryFault
 
-        if target not in self.argv and target != "evidence":
+        if (target not in self.argv or target == "broker") and target != "evidence":
             raise ValueError("unknown fault target")
         if not 0 < duration_ms <= 30000:
             raise ValueError("fault duration exceeds 30 s")
         fault = DeliveryFault(
             action, time.monotonic_ns() + duration_ms * 1_000_000, rate, delay_ms
         )
+        if action == "delay_grants" and not target.startswith("member:"):
+            raise ValueError("delay_grants requires member target")
+        return fault
+
+    def set_fault(self, target, action, duration_ms=8000, delay_ms=0, rate=1.0):
+        with self.action_lock:
+            return self._set_fault(target, action, duration_ms, delay_ms, rate)
+
+    def _set_fault(self, target, action, duration_ms, delay_ms, rate):
+        fault = self.validate_fault(target, action, duration_ms, delay_ms, rate)
         path = self.directory / "faults.json"
         temporary = path.with_suffix(".tmp")
         temporary.write_text(json.dumps({"target": target, **fault.__dict__}))

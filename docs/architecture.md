@@ -22,13 +22,19 @@ The frontend tree and state ownership remain as specified in [plan 19](../plans/
 | [`config/mosquitto.conf`](../config/mosquitto.conf) | M5 | Build/configuration artifact; interface defined by consuming module |
 | [`config/run.json`](../config/run.json) | M1 | fixed site registry, caps, timing and policy; no device lists |
 | [`docs/architecture.md`](../docs/architecture.md) | M5 | Concrete architecture and file map |
+| [`docs/backend-extensions.md`](../docs/backend-extensions.md) | M5 | Backend extension handoff — 6 September 2026 |
 | [`docs/contributions.md`](../docs/contributions.md) | All | honest file ownership and review record |
 | [`docs/demo.md`](../docs/demo.md) | M5 | three-minute live and fallback scripts |
+| [`docs/esp32-display.md`](../docs/esp32-display.md) | M5 | Optional ESP32 status screen |
 | [`docs/evidence.md`](../docs/evidence.md) | M5 | test/run hashes, counts, gaps and measured results |
-| [`docs/frontend-handoff.md`](../docs/frontend-handoff.md) | M5 | Frontend handoff after 9 |
+| [`docs/frontend-handoff.md`](../docs/frontend-handoff.md) | M5 | Frontend handoff — Claude owns web/ |
 | [`docs/implementation-status.md`](../docs/implementation-status.md) | M5 | Current implementation status |
 | [`docs/protocol.md`](../docs/protocol.md) | M1 | event-frozen contract and claim assumptions |
 | [`docs/runbook.md`](../docs/runbook.md) | M2 | cold start, port/PID recovery and 3 a.m. decisions |
+| [`firmware/status-display/include/status_protocol.h`](../firmware/status-display/include/status_protocol.h) | M2 | Bounded ASCII parser and request-anchored display freshness |
+| [`firmware/status-display/platformio.ini`](../firmware/status-display/platformio.ini) | M2 | Pinned ESP32-S3 round-screen build and explicit USB upload |
+| [`firmware/status-display/src/main.cpp`](../firmware/status-display/src/main.cpp) | M2 | Read-only GC9A01 status renderer and USB polling loop |
+| [`firmware/status-display/tests/protocol_test.cpp`](../firmware/status-display/tests/protocol_test.cpp) | M2 | Native malformed/stale/duplicate/clock-rollover display regressions |
 | [`fixtures/allocator-cases.json`](../fixtures/allocator-cases.json) | M1 | hand-calculated equal/weighted/rounding/floor cases |
 | [`fixtures/demo-events.jsonl`](../fixtures/demo-events.jsonl) | M5 | Six authored mock snapshot events for replay primitives; not a live recording |
 | [`fixtures/lab-cases.json`](../fixtures/lab-cases.json) | M5 | distributions, sizes and repeatability specification |
@@ -55,9 +61,13 @@ The frontend tree and state ownership remain as specified in [plan 19](../plans/
 | [`src/truss/coordinator.py`](../src/truss/coordinator.py) | M1 | Coordinator core. Owner M1. The MQTT lifecycle lives in coordinator_process.py. |
 | [`src/truss/coordinator_process.py`](../src/truss/coordinator_process.py) | M1 | M1: serialized, durable, sole grant issuer. No private device config is read. |
 | [`src/truss/devices.py`](../src/truss/devices.py) | M2 | Virtual load effects, no electrical actuation. Owner M2. |
+| [`src/truss/display_bridge.py`](../src/truss/display_bridge.py) | M5 | Read-only USB screen bridge. Owner M5; no MQTT credentials or control calls. |
 | [`src/truss/events.py`](../src/truss/events.py) | M3 | Append-only ordered JSONL evidence. Owner M3. Not an authority database. |
+| [`src/truss/fairness.py`](../src/truss/fairness.py) | M1 | M1: durable service-deficit accounting against equal-surplus authority, never meter use. |
 | [`src/truss/faults.py`](../src/truss/faults.py) | M2 | Bounded deterministic delivery faults. Owner M2. Does not alter authority clocks. |
 | [`src/truss/lab.py`](../src/truss/lab.py) | M5 | Bounded, isolated synthetic allocation measurement. Owner M5; no MQTT import. |
+| [`src/truss/lab_jobs.py`](../src/truss/lab_jobs.py) | M5 | M5: one bounded benchmark child per API, immutable recent job results and cancellation. |
+| [`src/truss/lab_worker.py`](../src/truss/lab_worker.py) | M5 | M5: one disposable benchmark child with Linux CPU/memory limits and no broker access. |
 | [`src/truss/local_policy.py`](../src/truss/local_policy.py) | M3 | Household-local assignment; only flexible output can yield. Owner M3. |
 | [`src/truss/member.py`](../src/truss/member.py) | M3 | Request-anchored receiver core. Owner M3. MQTT lifecycle is in member_process.py. |
 | [`src/truss/member_process.py`](../src/truss/member_process.py) | M3 | M3: private household process; aggregate offers out, bounded plant commands in. |
@@ -67,6 +77,7 @@ The frontend tree and state ownership remain as specified in [plan 19](../plans/
 | [`src/truss/plant.py`](../src/truss/plant.py) | M2 | Independent virtual-plant gate. Owner M2. Its process must outlive the member. |
 | [`src/truss/plant_process.py`](../src/truss/plant_process.py) | M2 | M2: independent virtual enforcer process. No coordinator or allocator imports. |
 | [`src/truss/process_entry.py`](../src/truss/process_entry.py) | M2 | M2: internal named process entrypoint; launched only by the local supervisor. |
+| [`src/truss/recordings.py`](../src/truss/recordings.py) | M5 | M5: bounded, immutable replay sessions over recorded operator snapshots; no controls. |
 | [`src/truss/reducer.py`](../src/truss/reducer.py) | M5 | Pure evidence projection. Owner M5. Replay cannot call an allocator or publisher. |
 | [`src/truss/replay.py`](../src/truss/replay.py) | M3 | Read-only ordered playback of recorded facts. Owner M3. |
 | [`src/truss/reservations.py`](../src/truss/reservations.py) | M1 | Possible authority, not last measured draw. Owner M1. Caller serialises access. |
@@ -80,11 +91,15 @@ The frontend tree and state ownership remain as specified in [plan 19](../plans/
 | [`tests/test_allocator.py`](../tests/test_allocator.py) | M1 | theorem domain, integer error and deterministic targets |
 | [`tests/test_api_contract.py`](../tests/test_api_contract.py) | M5 | identical mock/live shape, controls and source isolation |
 | [`tests/test_authority_store.py`](../tests/test_authority_store.py) | M1 | M1: durable epochs, exclusive issuer lock and persisted operation conflicts. |
+| [`tests/test_backend_extensions.py`](../tests/test_backend_extensions.py) | M5 | M5: isolated benchmark API, immutable replay and hardened request boundaries. |
 | [`tests/test_config.py`](../tests/test_config.py) | M2 | M2: source config edits cannot alter a run's frozen protected profiles. |
 | [`tests/test_coordinator.py`](../tests/test_coordinator.py) | M1 | M1: reject inflated self-declared floors and omitted registered households. |
 | [`tests/test_devices.py`](../tests/test_devices.py) | M2 | exactly-once effects and observed acknowledgements |
+| [`tests/test_display_bridge.py`](../tests/test_display_bridge.py) | M5 | M5: screen projection, read-only HTTP boundary and actual native parser regressions. |
 | [`tests/test_events_replay.py`](../tests/test_events_replay.py) | M3 | canonical reconstruction, gaps and readonly playback |
+| [`tests/test_fairness.py`](../tests/test_fairness.py) | M1 | M1: exact service-credit integration, frozen unknown intervals and durable restart behavior. |
 | [`tests/test_fault_integration.py`](../tests/test_fault_integration.py) | M2 | real processes, coordinator/member/broker failure |
+| [`tests/test_live_extensions.py`](../tests/test_live_extensions.py) | M5 | M5: actual rule persistence, weighted grants, read-only replay and concurrent lab/fault API. |
 | [`tests/test_member.py`](../tests/test_member.py) | M3 | pending request, expiry, binding and stale offers |
 | [`tests/test_metrics.py`](../tests/test_metrics.py) | M5 | unknown/null denominators and settling-window semantics |
 | [`tests/test_plant.py`](../tests/test_plant.py) | M2 | gate/refusal/expiry despite member failure |
@@ -147,7 +162,7 @@ allocate(offers: Sequence[Demand], cap_w: int, reserve_w: int=0)
 
 ### api · M5
 
-Dependencies: `.api_models`, `.lab`, `.mock`, `asyncio`, `fastapi`, `fastapi.exceptions`, `fastapi.responses`, `fastapi.staticfiles`, `json`, `pathlib`, `time`, `uuid`.
+Dependencies: `.api_models`, `.lab_jobs`, `.mock`, `.recordings`, `asyncio`, `contextlib`, `fastapi`, `fastapi.exceptions`, `fastapi.responses`, `fastapi.staticfiles`, `json`, `pathlib`, `time`, `uuid`.
 
 ```text
 create_app(provider=None)
@@ -169,9 +184,22 @@ MetricsView — data model
 Snapshot — data model
 ControlRequest — data model
 CapRequest — data model
+RuleRequest — data model
+FaultRequest.meaningful(self)
 ChaosRequest — data model
 LabRequest — data model
 BenchmarkResult — data model
+LabJob — data model
+ReplayRequest — data model
+ReplaySeek — data model
+ReplayPlayback — data model
+FairnessMember — data model
+FairnessView — data model
+RecordingSummary — data model
+RecordingCatalog — data model
+ReplayView — data model
+ProcessView — data model
+RuntimeView — data model
 ```
 
 ### authority_store · M1
@@ -224,7 +252,7 @@ load_member(path: str | Path, registration: Registration)
 
 ### coordinator · M1
 
-Dependencies: `.allocator`, `.config`, `.reservations`, `.validator`.
+Dependencies: `.allocator`, `.config`, `.reservations`, `.validator`, `time`.
 
 ```text
 Coordinator.__init__(self, policy: RunPolicy, now_ns: int)
@@ -233,7 +261,7 @@ Coordinator.propose(self, demands: list[Demand], cap_w: int)
 
 ### coordinator_process · M1
 
-Dependencies: `.allocator`, `.authority_store`, `.coordinator`, `.runtime_common`, `.schemas`, `hashlib`, `json`, `pathlib`, `time`, `uuid`.
+Dependencies: `.allocator`, `.authority_store`, `.coordinator`, `.fairness`, `.runtime_common`, `.schemas`, `hashlib`, `json`, `pathlib`, `time`, `uuid`.
 
 ```text
 canonical_hash(value)
@@ -248,6 +276,16 @@ Dependencies: `.config`, `dataclasses`.
 Device.command(self, command_id: str, version: int, desired_w: int, deadline_ns: int, now_ns: int, allowance_w: int)
 ```
 
+### display_bridge · M5
+
+Dependencies: `.api_models`, `argparse`, `httpx`, `re`, `serial`, `time`.
+
+```text
+display_frame(snapshot: Snapshot, nonce: str)
+answer_request(line: bytes, client: httpx.Client, source: str)
+main()
+```
+
 ### events · M3
 
 Dependencies: `.schemas`, `os`, `pathlib`.
@@ -257,6 +295,19 @@ EventRecord — data model
 read_events(path: str | Path)
 EventLog.__init__(self, path: str | Path)
 EventLog.append(self, **fields)
+```
+
+### fairness · M1
+
+Dependencies: `.allocator`, `fractions`, `json`.
+
+```text
+ServiceDeficit.__init__(self, members, now_ns, saved=None, scale_wh=10)
+ServiceDeficit.capture(self, now_ns, offers, statuses, ledger, cap_w, reserve_w, connected=True)
+ServiceDeficit.advance(self, now_ns)
+ServiceDeficit.weight(self, member, rule)
+ServiceDeficit.dump(self)
+ServiceDeficit.persist(self, store)
 ```
 
 ### faults · M2
@@ -270,10 +321,29 @@ delivery_decision(fault: DeliveryFault | None, topic: str, now_ns: int, rng: Ran
 
 ### lab · M5
 
-Dependencies: `.allocator`, `platform`, `random`, `statistics`, `time`.
+Dependencies: `.allocator`, `.validator`, `fractions`, `platform`, `random`, `statistics`, `time`.
 
 ```text
-benchmark(members: int, seed: int=42, samples: int=200)
+benchmark(members: int, seed: int=42, samples: int=200, distribution='uniform', rule='equal_surplus', cap_ratio=0.5)
+```
+
+### lab_jobs · M5
+
+Dependencies: `.api_models`, `.mock`, `os`, `subprocess`, `sys`, `threading`, `uuid`.
+
+```text
+LabJobs.__init__(self)
+LabJobs.submit(self, request, key)
+LabJobs.get(self, job_id)
+LabJobs.close(self)
+```
+
+### lab_worker · M5
+
+Dependencies: `.api_models`, `.lab`, `json`, `os`, `resource`, `sys`.
+
+```text
+main()
 ```
 
 ### local_policy · M3
@@ -329,7 +399,7 @@ MockState.snapshot(self)
 
 ### observer · M5
 
-Dependencies: `.api_models`, `.authority_store`, `.clock`, `.config`, `.events`, `.runtime_common`, `.schemas`, `.transport`, `json`, `pathlib`, `sqlite3`, `threading`, `time`, `uuid`.
+Dependencies: `.api_models`, `.authority_store`, `.clock`, `.config`, `.events`, `.fairness`, `.recordings`, `.runtime_common`, `.schemas`, `.transport`, `json`, `pathlib`, `sqlite3`, `threading`, `time`, `uuid`.
 
 ```text
 LiveState.__init__(self, run)
@@ -342,6 +412,8 @@ LiveState.control_state(self)
 LiveState.control_revision(self)
 LiveState.operations(self)
 LiveState.control(self, body, key, kind)
+LiveState.get_operation(self, operation_id)
+LiveState.fairness_state(self)
 LiveState.snapshot(self)
 ```
 
@@ -372,6 +444,19 @@ Dependencies: `.coordinator_process`, `.member_process`, `.plant_process`, `sys`
 
 ```text
 main()
+```
+
+### recordings · M5
+
+Dependencies: `.api_models`, `.events`, `bisect`, `hashlib`, `pathlib`, `threading`, `time`, `uuid`.
+
+```text
+Recordings.__init__(self, root=None)
+Recordings.catalog(self)
+Recordings.create(self, run_id, from_seq=0)
+Recordings.get(self, replay_id, from_seq=None)
+Recordings.delete(self, replay_id)
+Recordings.playback(self, replay_id, action)
 ```
 
 ### reducer · M5
@@ -417,6 +502,7 @@ TrussRun.start_child(self, name)
 TrussRun.start(self)
 TrussRun.write_processes(self)
 TrussRun.act(self, action, member_id=None)
+TrussRun.validate_fault(self, target, action, duration_ms=8000, delay_ms=0, rate=1.0)
 TrussRun.set_fault(self, target, action, duration_ms=8000, delay_ms=0, rate=1.0)
 TrussRun.close(self)
 ```
