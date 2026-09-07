@@ -103,6 +103,11 @@ does not connect hosted MQTT to physical devices. State and recordings reset
 when the dyno restarts because [Heroku's filesystem is ephemeral](https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem).
 Download recordings you want to keep before a restart.
 
+The start command explicitly fixes Uvicorn at one worker. Do not set it to
+multiple workers: the broker and virtual-home processes belong to that one
+server process. Heroku may set `WEB_CONCURRENCY` automatically, but the explicit
+`--workers 1` in `Procfile` takes precedence.
+
 ## Optional local verification
 
 ```bash

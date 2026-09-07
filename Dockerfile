@@ -23,4 +23,4 @@ COPY config/ ./config/
 COPY --from=frontend /build/web/dist ./web/dist
 RUN useradd --create-home truss
 USER truss
-CMD ["python", "-m", "truss.hosted"]
+CMD ["uvicorn", "truss.hosted:create_hosted_app", "--factory", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
