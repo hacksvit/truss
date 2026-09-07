@@ -198,8 +198,9 @@ disabled there, and mock illustrations do not establish real process behaviour.
 Keep the service terminals open. Stop a live run with `Ctrl+C` in its owning terminal so the
 supervisor can clean up its children.
 
-> `npm --prefix web run build` typechecks and emits `web/dist`. The full demo relies on Vite's
-> proxies, so serving that build from the Python API alone is **not** an equivalent setup.
+> `npm --prefix web run build` typechecks and emits `web/dist`. The development setup relies
+> on Vite's proxies. For a production build with all services on one URL, use the
+> [Heroku hosting setup](docs/heroku.md), which includes its own combined server.
 
 ## The 90-second demo
 

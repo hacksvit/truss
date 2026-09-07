@@ -82,9 +82,9 @@ class LiveState:
         self.last_cap = self.policy.cap_w
         self.time_to_safe = None
 
-    def start(self):
-        self.c.start([self.c.root + "/#"])
-        self.publisher.start([])
+    def start(self, *, install_signals=True):
+        self.c.start([self.c.root + "/#"], install_signals=install_signals)
+        self.publisher.start([], install_signals=install_signals)
         self.running = True
         self.thread = threading.Thread(
             target=self._consume, daemon=True, name="truss-evidence"

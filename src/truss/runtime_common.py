@@ -121,14 +121,15 @@ class ProcessContext:
         except FileNotFoundError:
             return None
 
-    def start(self, subscriptions):
+    def start(self, subscriptions, *, install_signals=True):
         self.transport.start(
             "127.0.0.1", self.manifest["broker_port"], subscriptions, self.enqueue
         )
         if not self.transport.connected.wait(5):
             raise RuntimeError("broker connection unavailable")
-        signal.signal(signal.SIGTERM, lambda *_: setattr(self, "running", False))
-        signal.signal(signal.SIGINT, lambda *_: setattr(self, "running", False))
+        if install_signals:
+            signal.signal(signal.SIGTERM, lambda *_: setattr(self, "running", False))
+            signal.signal(signal.SIGINT, lambda *_: setattr(self, "running", False))
 
     def drain(self, limit=64):
         while len(self.pending_delayed) < 1024:
