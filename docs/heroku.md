@@ -50,12 +50,21 @@ heroku buildpacks:add --index 3 heroku/python
 ```
 
 Then push again. In the Dashboard: Settings → Buildpacks, same three URLs in
-that order.
+that order. **Order is the build sequence, not just a checklist.** If the log
+says `1. heroku/python` then `2. heroku/nodejs`, Python's `bin/post_compile`
+runs before `npm` exists. Clear and re-add without `--index` so they append
+in this sequence:
 
-If logs show `Website build missing`, the Node buildpack did not compile
-`web/dist` (Python-only apps skip it, and `web/dist` is gitignored). Confirm
-the three buildpacks above, then redeploy. `bin/post_compile` builds the
-website during slug compile and fails the deploy if `npm` is missing.
+```bash
+heroku buildpacks:clear -a YOUR-APP-NAME
+heroku buildpacks:add heroku-community/apt -a YOUR-APP-NAME
+heroku buildpacks:add heroku/nodejs -a YOUR-APP-NAME
+heroku buildpacks:add heroku/python -a YOUR-APP-NAME
+```
+
+If logs show `Website build missing`, `web/dist` was not compiled (`web/dist`
+is gitignored). `heroku/nodejs` must appear in the build log and run
+`heroku-postbuild`.
 
 ## Container stack (Docker)
 

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This hook runs at the end of the *Python* buildpack only. If Python is first,
+# npm is not on PATH yet; heroku/nodejs will build web/dist afterward.
 if ! command -v npm >/dev/null 2>&1; then
-  echo "-----> Missing npm. Add buildpacks in this order before deploying:"
+  echo "-----> Skipping website build (npm not installed yet)."
+  echo "       heroku/nodejs must run after this step, or put Python last:"
   echo "       heroku-community/apt, heroku/nodejs, heroku/python"
-  exit 1
+  exit 0
 fi
 
 # Vite and TypeScript live in web/devDependencies. Heroku sets NODE_ENV=production
