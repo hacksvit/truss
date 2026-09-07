@@ -20,6 +20,8 @@ const smooth=(n:number)=>{const t=clamp(n);return t*t*(3-2*t);};
 // radius interpolate continuously from that point into its finished card.
 const JOINTS=[[232,48],[498,48],[683,227],[682,506],[498,680],[232,680],[48,506],[48,227]];
 const LAST=TOPICS.length-1;
+// Reuse the original photography, including alternate crops for the two new topics.
+const PICTURES=[1,5,2,3,2,4,6,1];
 
 export default function Showcase(){
  const journey=useRef<HTMLElement>(null),stage=useRef<HTMLDivElement>(null);
@@ -31,10 +33,11 @@ export default function Showcase(){
   const media=matchMedia('(prefers-reduced-motion: reduce)');
   const emblem=el.querySelector<HTMLElement>('.hero-emblem')!;
   const cards=Array.from(el.querySelectorAll<HTMLElement>('.story-card'));
+  const clouds=Array.from(el.querySelectorAll<HTMLElement>('.home-atmosphere .cloud-layer'));
   let raf=0,lastActive=-1,lastStory=false;
   const render=()=>{
    raf=0;reduced.current=media.matches;
-   if(media.matches){lastStory=true;setShowStory(true);document.documentElement.style.setProperty('--story-focus','0');return;}
+   if(media.matches){lastStory=true;setShowStory(true);document.documentElement.style.setProperty('--story-focus','0');clouds.forEach(cloud=>cloud.style.removeProperty('translate'));el.style.setProperty('--cloud-mist-opacity','1');return;}
    const stickyTop=parseFloat(getComputedStyle(el).top)||90;
    const p=clamp((stickyTop-section.getBoundingClientRect().top)/Math.max(1,section.offsetHeight-el.offsetHeight));
    const dissolve=smooth((p-.025)/.13),release=smooth((p-.035)/.13),reveal=smooth((p-.29)/.065);
@@ -43,7 +46,14 @@ export default function Showcase(){
    el.style.setProperty('--intro-opacity',String(1-dissolve));
    el.style.setProperty('--intro-rise',`${-dissolve*60}px`);
    el.style.setProperty('--cloud-rise',`${-p*70}px`);
-   el.style.setProperty('--cloud-opacity',String(1-smooth((p-.13)/.22)));
+   // Independent translate composes with the existing route entrance/exit
+   // transform. Each bank leaves toward its own side, back layers first.
+   clouds.forEach((cloud,i)=>{
+    const depart=smooth((p-.055-Math.floor(i/2)*.026)/.22);
+    cloud.style.translate=`${(i%2===0?-1:1)*depart*innerWidth*.78}px ${-depart*el.offsetHeight*(.14+Math.floor(i/2)*.045)}px`;
+   });
+   el.style.setProperty('--cloud-opacity','1');
+   el.style.setProperty('--cloud-mist-opacity',String(1-smooth((p-.06)/.15)));
    el.style.setProperty('--cards-opacity',String(reveal));
    document.documentElement.style.setProperty('--story-focus',String(reveal));
    el.style.setProperty('--mark-opacity',String(1-smooth((p-.035)/.10)));
@@ -108,6 +118,7 @@ export default function Showcase(){
     <div className="story-carousel" role="region" aria-label="How Truss works" aria-roledescription="carousel" onKeyDown={e=>{if(e.key==='ArrowRight'){e.preventDefault();go(Math.min(LAST,active+1));}if(e.key==='ArrowLeft'){e.preventDefault();go(Math.max(0,active-1));}}}>
      <div className="story-heading"><p>PIECE BY PIECE</p><h2>A simpler way to share.</h2></div>
      <div className="story-card-space">{TOPICS.map((t,i)=><article className="story-card" style={{'--dot-color':i===0||i===6||i===7?'var(--truss-logo-structure)':'var(--truss-logo-web)'} as CSSProperties} id={`story-${i}`} key={t.t} aria-label={`${i+1} of ${TOPICS.length}: ${t.t}`}>
+      <div className="story-backdrop" aria-hidden="true"><img src={`/topics/t${PICTURES[i]}.jpg`} alt="" decoding="async" style={{objectPosition:i===4?'75% center':i===7?'25% center':'center'}}/></div>
       <div className="story-copy"><h3>{t.t}</h3><p>{t.p}</p></div>
      </article>)}</div>
      <div className="story-controls" inert={!showStory}><button aria-label="Previous story card" disabled={active===0} onClick={()=>go(active-1)}>←</button><div className="story-dots">{TOPICS.map((t,i)=><button key={t.t} aria-label={`Show card ${i+1}: ${t.t}`} aria-current={i===active?'step':undefined} onClick={()=>go(i)}><span/></button>)}</div><button aria-label="Next story card" disabled={active===LAST} onClick={()=>go(active+1)}>→</button><span className="story-count" aria-live="polite">0{active+1} / 08</span></div>

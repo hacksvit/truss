@@ -6,6 +6,7 @@
 /config/*.local.*
 /web/node_modules/
 /web/dist/
+/web/public/team/
 __pycache__/
 *.py[cod]
 .pytest_cache/

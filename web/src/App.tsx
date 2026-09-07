@@ -3,9 +3,9 @@ import Showcase from './routes/Showcase';
 import Console from './routes/Console';
 import Lab from './routes/Lab';
 import Example from './routes/Example';
+import Credits from './routes/Credits';
+import Info from './routes/Info';
 import Chrome from './components/Chrome';
-
-function Stub({title}:{title:string}){return <main className="empty"><h2>{title}</h2><p>Not built yet. The shell, navigation and theming are in place; this page's content is the next piece of work.</p><p className="muted"><a href="/console">Console</a> · <a href="/lab">Lab</a></p></main>;}
 
 const OUT_MS=780;   // includes the 540ms cloud exit + 5 × 45ms stagger
 
@@ -55,9 +55,9 @@ export default function App(){
 
  const page=route==='/console'?<Console/>
   :route==='/lab'?<Lab/>
-  :route==='/info'?<Stub title="Info"/>
+  :route==='/info'?<Info/>
   :route==='/example'?<Example/>
-  :route==='/credits'?<Stub title="Credits"/>
+  :route==='/credits'?<Credits/>
   :<Showcase/>;
 
  return <>
