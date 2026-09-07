@@ -232,7 +232,7 @@ image is vendored into `web/public/`, and nothing is fetched from a CDN at runti
 |---|---|
 | **Home** | An infinite 3D card marquee introducing the idea in six short topics. |
 | **Info** | Background on the problem statement. *Shell only — content is the next piece of work.* |
-| **Example** | A walkable 3D site — three homes, a shared generator, live wiring. Press <kbd>F</kbd> to enter, <kbd>WASD</kbd> to move, <kbd>V</kbd> for first person, <kbd>E</kbd> at a door to step inside and see each home's appliances, agent and pulsing wires. Approaching the generator opens the coordinator's internals: what it is handed, the rule it applies, what it refuses to do, and what it sends back — all computed from the live numbers. |
+| **Example** | A walkable 3D site — three homes, a shared generator, live wiring. Press <kbd>F</kbd> to enter, <kbd>WASD</kbd> to move, <kbd>V</kbd> for first person, <kbd>E</kbd> at a door to step inside and see each home's appliances, agent and pulsing wires. Press **E near the coordinator** to open its enclosure in the same Three.js scene. The camera frames the allocator, validator, reservation gate, MQTT broker, message wiring and two curved hologram meshes. They use the website theme and update with the supply slider. E/Escape returns to the walk; scroll zooms for inspection. The example shows proposals and projected local draw, not live grants or telemetry. The scene illustrates the protocol with **three** homes for legibility; the live runtime in the console carries **five**. |
 | **Console** | The operator console: capacity controls, allocation explanations, failure drills, evidence and replay. |
 | **Lab** | Measured allocator benchmarks with raw samples, median and p95. |
 | **Credits** | The team. *Shell only — the names currently live on a board inside the 3D site.* |
@@ -250,10 +250,10 @@ and boards rendered *inside* the 3D scene.
 | **Operator console** | Separate proposed / issued / reserved / observed watts, allocation explanations, lease estimates, capacity and rule controls, explicit stale and unknown states. |
 | **Failure drills** | Coordinator loss, delayed grants, household partition, two rapid restarts, infeasible minimums — each with sampled reports and recovery attempts. |
 | **Fairness comparison** | Labelled, read-only comparison of two policies on one demand trace. Issues no live permissions. |
-| **Minimum review** | Export an unreviewed proposal to raise a registered minimum. The console cannot apply it, or downgrade a protected load. |
+| **Minimum review** | Export an unreviewed proposal to raise a registered minimum. The console cannot apply it or downgrade a protected load. |
 | **Evidence and replay** | Event history, downloadable console evidence, read-only playback of saved snapshots. |
 | **Allocator lab** | Synthetic batches from 5 to 5,000 members, measured in the UI. |
-| **3D site walkthrough** | Animated character, house interiors, per-appliance models, current-flow pulses, live coordinator panel. |
+| **3D site walkthrough** | Animated character, house interiors, per-appliance models, current-flow pulses, coordinator internals rendered in the scene. |
 | **Optional ESP32 screen** | USB status display for the virtual site. **No control authority.** |
 
 The runtime is deterministic and non-AI. SGLang, appliance-criticality classification and

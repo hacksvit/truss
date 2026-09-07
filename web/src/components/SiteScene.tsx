@@ -1,6 +1,9 @@
-import {useEffect,useRef} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {loadKit,fitToGround,buildInterior,applyAllocation,buildCreditsBoard,makeLabel,pulseTexture} from './houseKit';
+import {CoordinatorVisit} from './coordinatorVisit';
+import {buildCoordinatorInternals} from './coordinatorKit';
+import {SITE_MEMBERS,WANTS} from './trussModel';
 
 function cssColor(name:string,fallback:string){
  const v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -13,12 +16,16 @@ function cssColor(name:string,fallback:string){
  *             level and you walk a small grey doll around the courtyard with
  *             WASD. F (or Esc) returns. The doll is built from primitives and
  *             squashes as it moves, rather than being a downloaded rig. */
-export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
+export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panelOpen:panelVisible=false}:{
  onMode?:(m:'overview'|'explore')=>void;
  onHouse?:(h:{index:number;name:string;prompt?:boolean}|null)=>void;
  onPanel?:(open:boolean)=>void;
  budgets?:number[];
+ cap?:number;
+ panelOpen?:boolean;
 }){
+ const [loading,setLoading]=useState<'loading'|'ready'|'fallback'>('loading');
+ const capRef=useRef(cap); capRef.current=cap;
  const host=useRef<HTMLDivElement>(null);
  const modeCb=useRef(onMode); modeCb.current=onMode;
  const houseCb=useRef(onHouse); houseCb.current=onHouse;
@@ -32,6 +39,24 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   el.appendChild(renderer.domElement);
+
+  // Commit one complete scene only. A timeout keeps a stable fallback instead
+  // of exposing temporary geometry and swapping it later on a slow connection.
+  let disposed=false,settled=false;
+  setLoading('loading');
+  const cv=renderer.domElement;
+  cv.style.opacity='0';
+  cv.style.transition='opacity 300ms ease';
+  const reveal=(fallback=false)=>{
+   if(disposed) return;
+   renderer.render(scene,camera);
+   cv.style.opacity='1';
+   setLoading(fallback?'fallback':'ready');
+  };
+  const revealTimer=window.setTimeout(()=>{
+   if(disposed||settled)return;
+   settled=true; reveal(true);
+  },12000);
 
   const rig=new THREE.Group(); scene.add(rig);
   // everything except the character lives in `world`, so dropping into
@@ -77,18 +102,25 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
   const fin=new THREE.Mesh(new THREE.BoxGeometry(1.3,.1,.9),mats.gen);
   fin.position.y=.72; gen.add(fin);
   gen.position.y=.62; world.add(gen);
-  const genLabel=makeLabel('coordinator',['5000 W cap']);
+  // The old solid body remains only as the existing raycast target. The
+  // matching hollow shell and hinged door render in both open/closed states.
+  genBody.visible=false;
+  const coordinator=buildCoordinatorInternals(mats.gen);
+  gen.add(coordinator.root);
+  const coordinatorTheme=new MutationObserver(()=>coordinator.paint());
+  coordinatorTheme.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  const genLabel=makeLabel('coordinator',[capRef.current+' W example supply']);
   genLabel.sprite.scale.set(1.9,.95,1);
   genLabel.sprite.position.set(0,2.15,0);
   genLabel.sprite.visible=false;
   world.add(genLabel.sprite);
 
-  const FLOORS=[160,170,180];
   const R=2.9;
   const houses:THREE.Vector3[]=[];
   const houseGroups:THREE.Group[]=[];
   const shellHolders:THREE.Group[]=[];
   const placeholders:THREE.Object3D[]=[];
+  const siteLinks:THREE.Mesh[]=[];
   const sitePulses:{tex:THREE.Texture;mat:THREE.MeshBasicMaterial}[]=[];
   for(let i=0;i<3;i++){
    const a=(i/3)*Math.PI*2 - Math.PI/2;
@@ -109,12 +141,12 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
    const mid=from.clone().lerp(to,.5); mid.y+=.85;
    const curve=new THREE.QuadraticBezierCurve3(from,mid,to);
    const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,28,.045,8,false),mats.link);
-   world.add(tube);
+   world.add(tube);siteLinks.push(tube);
    const ptex=pulseTexture();
    const pmat=new THREE.MeshBasicMaterial({map:ptex,transparent:true,opacity:.5,
      blending:THREE.AdditiveBlending,depthWrite:false});
    const ptube=new THREE.Mesh(new THREE.TubeGeometry(curve,28,.062,8,false),pmat);
-   world.add(ptube);
+   world.add(ptube);siteLinks.push(ptube);
    sitePulses.push({tex:ptex,mat:pmat});
   }
 
@@ -146,7 +178,12 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
   const shellMats:THREE.Material[]=[];
   let nearHouse=-1, inside=-1, insideBlend=0;
   let lastBudgets='';
-  let nearCoord=false, panelOpen=false;
+  let nearCoord=false, panelOpen=false, panelBlend=0, panelZoom=1;
+  const visit=new CoordinatorVisit();
+  const panelCamera=new THREE.Vector3(),panelAim=new THREE.Vector3(),landing=new THREE.Vector3();
+  const savedFollow=new THREE.Vector3(),savedAim=new THREE.Vector3();
+  let savedFollowInit=false,savedFirstPerson=false;
+  const panelLook={x:0,y:0};
 
   // credits board, out in the open ground beyond the site
   const credits=buildCreditsBoard(['Pranav','Logesh','Prashanth','Kevin','Kalyan']);
@@ -188,13 +225,16 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
   };
 
   loadKit().then(kit=>{
+   if(disposed||settled) return;
+   settled=true; window.clearTimeout(revealTimer);
    const structure=cssColor('--truss-logo-structure','#343B45');
    const web=cssColor('--truss-logo-web','#698F93');
    const accent=cssColor('--accent','#3E7C84');
 
    // ---- swap the box-and-cone placeholders for the CC0 shells ----
    kit.shells.forEach((shell,i)=>{
-    const holder=shellHolders[i%shellHolders.length];
+    if(!shell) return;
+    const holder=shellHolders[i];
     if(!holder) return;
     const inst=shell.clone(true);
     fitToGround(inst,1.55);
@@ -207,17 +247,20 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
      m.material=mat; shellMats.push(mat);
     });
    });
-   if(kit.shells.length) for(const p of placeholders) p.visible=false;
+   kit.shells.forEach((shell,i)=>{if(shell){placeholders[i*2].visible=false;placeholders[i*2+1].visible=false;}});
 
    // ---- interiors, one per home ----
    houseGroups.forEach((h,i)=>{
-    const built=buildInterior({floor:new THREE.Color(0x1b2430),wall:new THREE.Color(0x39424f),accent,muted:web},'agent '+'ABC'[i]);
+    const profile=SITE_MEMBERS[i];
+    const built=buildInterior({floor:new THREE.Color(0x1b2430),wall:new THREE.Color(0x39424f),accent,muted:web},
+                              'agent '+profile.name,profile);
     built.root.visible=false;
     built.root.scale.setScalar(0.78);
     h.add(built.root);
     built.useModels(kit.appliances[i]||{},i);
     interiors.push(built);
-    applyAllocation(built.appliances,budgetRef.current?.[i]??560,accent,web);
+    applyAllocation(built.appliances,profile,budgetRef.current?.[i]??profile.floor,
+                    WANTS[profile.id],accent,web);
    });
 
    // ---- the rigged character replaces the primitive doll ----
@@ -234,15 +277,21 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
     actIdle=mk('Idle'); actWalk=mk('Walking'); actRun=mk('Running');
     if(actIdle){ actIdle.play(); current=actIdle; }
    }
-  }).catch(()=>{ /* keep the primitive fallback */ });
+   reveal(kit.shells.some(shell=>!shell));
+  }).catch(()=>{ if(disposed)return; settled=true; window.clearTimeout(revealTimer); reveal(true); });
 
   const isTyping=(t:EventTarget|null)=>{
    const n=t as HTMLElement|null;
    return !!n && (n.tagName==='INPUT'||n.tagName==='TEXTAREA'||n.isContentEditable);
   };
   const onKeyDown=(e:KeyboardEvent)=>{
-   if(isTyping(e.target)) return;
    const k=e.key.toLowerCase();
+   if(e.repeat&&['e','f','v','escape'].includes(k))return;
+   if(visit.active){
+    if(k==='e'||k==='escape'){e.preventDefault();visit.leave(camera);panelCb.current?.(false);}
+    return;
+   }
+   if(isTyping(e.target)) return;
    if(k==='f'){ e.preventDefault(); setMode(mode==='explore'?'overview':'explore'); return; }
    if(k==='escape'&&mode==='explore'){ setMode('overview'); return; }
    if(k==='v'&&mode==='explore'){
@@ -261,7 +310,14 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
     e.preventDefault();
     if(panelOpen){ panelOpen=false; panelCb.current?.(false); return; }
     if(inside>=0){ inside=-1; houseCb.current?.(null); return; }
-    if(nearCoord){ panelOpen=true; panelCb.current?.(true); return; }
+    if(nearCoord){
+     visit.enter(camera,doll);
+     savedFollow.copy(camFollow);savedAim.copy(camAim);savedFollowInit=followInit;savedFirstPerson=firstPerson;
+     panelOpen=true;panelZoom=1;panelLook.x=panelLook.y=0;keys.clear();
+     if(actIdle&&current!==actIdle){current?.fadeOut(.15);actIdle.reset().fadeIn(.15).play();current=actIdle;}
+     if(document.pointerLockElement)document.exitPointerLock?.();
+     panelCb.current?.(true);return;
+    }
     if(nearHouse>=0){ inside=nearHouse; houseCb.current?.({index:inside,name:'ABC'[inside]}); }
     return;
    }
@@ -272,6 +328,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
   const ray=new THREE.Raycaster(); const ptr=new THREE.Vector2();
   let holdTimer=0;
   const onDown=(e:PointerEvent)=>{
+   if(visit.active)return;
    const r=renderer.domElement.getBoundingClientRect();
    ptr.x=((e.clientX-r.left)/r.width)*2-1;
    ptr.y=-((e.clientY-r.top)/r.height)*2+1;
@@ -290,6 +347,12 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
    renderer.domElement.style.cursor=mode==='explore'?'default':'grab';
   };
   const onPointerMove=(e:PointerEvent)=>{
+   if(visit.active){
+    const r=el.getBoundingClientRect();
+    panelLook.x=(e.clientX-r.left)/r.width*2-1;
+    panelLook.y=-((e.clientY-r.top)/r.height*2-1);
+    return;
+   }
    if(mode==='explore'){
     if(!dragging) return;
     const dx=e.clientX-lastX, dy=e.clientY-lastY;
@@ -321,7 +384,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
    wasLocked=locked;
   };
   const onRawMove=(e:MouseEvent)=>{
-   if(!locked) return;
+   if(!locked||visit.active) return;
    camYaw-=e.movementX*0.0022;
    camPitch=Math.max(-0.55,Math.min(0.45,camPitch-e.movementY*0.0018));
   };
@@ -330,6 +393,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
 
   renderer.domElement.style.cursor='grab';
   const onWheel=(e:WheelEvent)=>{
+   if(visit.active){e.preventDefault();panelZoom=Math.max(.52,Math.min(1.1,panelZoom+Math.sign(e.deltaY)*.06));return;}
    if(mode!=='explore') return;
    e.preventDefault();
    camDist=Math.max(1.6,Math.min(8,camDist+Math.sign(e.deltaY)*0.42));
@@ -344,7 +408,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
   const oPos=new THREE.Vector3(0,4.6,11.6), oLook=new THREE.Vector3(0,.4,0);
   const ePos=new THREE.Vector3(), eLook=new THREE.Vector3();
   const camPos=new THREE.Vector3(), camLook=new THREE.Vector3();
-  let raf=0, last=performance.now();
+  let raf=0, last=performance.now(),lastCap=-1;
 
   const tick=(now:number)=>{
    raf=requestAnimationFrame(tick);
@@ -353,12 +417,19 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
    // time-based progress so the transition can be properly eased and arced,
    // rather than an exponential lerp that only ever approaches its target
    const want=mode==='explore'?1:0;
-   blendRaw=Math.max(0,Math.min(1,blendRaw+(want?1:-1)*dt/1.35));
+   if(!visit.active)blendRaw=Math.max(0,Math.min(1,blendRaw+(want?1:-1)*dt/1.35));
    blend=blendRaw*blendRaw*blendRaw*(blendRaw*(blendRaw*6-15)+10);   // smootherstep
    const swoop=Math.sin(blend*Math.PI);                              // 0 -> 1 -> 0
 
    const wsNow=1+blend*0.55;
-   if(mode==='explore'){
+   const wasInspecting=visit.active;
+   visit.advance(dt,reduced);
+   const inspecting=wasInspecting||visit.active;
+   panelOpen=visit.active;panelBlend=visit.openness;
+   coordinator.update(capRef.current);coordinator.animate(now,panelBlend,reduced);
+   siteLinks.forEach(link=>{link.visible=panelBlend<.15;});
+   if(inspecting){keys.clear();vel.set(0,0,0);}
+   if(mode==='explore'&&!inspecting){
     let f=0,r=0;
     if(keys.has('w')||keys.has('arrowup')) f+=1;
     if(keys.has('s')||keys.has('arrowdown')) f-=1;
@@ -424,13 +495,13 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
      houseCb.current?.(coordNow?{index:-1,name:'the coordinator',prompt:true}:null);
     }
     const near=(!coordNow&&bestD<2.05*wsNow)?best:-1;
-    if(near!==nearHouse&&inside<0){ nearHouse=near; houseCb.current?.(near>=0?{index:near,name:'ABC'[near],prompt:true}:null); }
+    if(near!==nearHouse&&inside<0){ nearHouse=near; if(!coordNow)houseCb.current?.(near>=0?{index:near,name:'ABC'[near],prompt:true}:null); }
 
     let hd=heading-doll.rotation.y;
     hd=Math.atan2(Math.sin(hd),Math.cos(hd));
     doll.rotation.y+=hd*Math.min(1,dt*10);
 
-   } else {
+   } else if(mode==='overview'&&!inspecting){
     if(!dragging){
      velY*=0.94; velX*=0.94;
      targetY+=velY; targetX+=velX;
@@ -442,7 +513,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
    // only while mode==='explore'. Recomputing it only in explore mode made the
    // target snap to the overview the instant F was pressed, so the exit had
    // nothing to fly out from — it read as a cut, then a zoom.
-   if(blend>0.0001){
+   if(blend>0.0001&&!inspecting){
     const cf=Math.cos(camPitch);
     if(firstPerson&&mode==='explore'){
      ePos.set(doll.position.x,.52+doll.position.y*0.35,doll.position.z);
@@ -497,8 +568,8 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
 
    curY+=(targetY-curY)*0.08;
    curX+=(targetX-curX)*0.08;
-   rig.rotation.y=curY*(1-blend);
-   rig.rotation.x=curX*(1-blend);
+   rig.rotation.y=curY*(1-blend)*(1-panelBlend);
+   rig.rotation.x=curX*(1-blend)*(1-panelBlend);
 
    camPos.copy(oPos).lerp(ePos,blend);
    camLook.copy(oLook).lerp(eLook,blend);
@@ -512,17 +583,30 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
    camera.position.copy(camPos);
    camera.lookAt(camLook);
    camera.rotateZ(Math.sin(blend*Math.PI)*0.11);
+   if(inspecting){
+    const tan=Math.tan(THREE.MathUtils.degToRad(fov/2));
+    const distance=Math.max(1.8/tan,2.07/(tan*camera.aspect))*wsNow*panelZoom;
+    const pan=(1-panelZoom)*2.2;
+    panelAim.set(panelLook.x*pan*wsNow,(.94+panelLook.y*pan*.45)*wsNow,.18*wsNow);
+    panelCamera.set(panelAim.x*.94,panelAim.y+.15*wsNow,distance);
+    landing.set(0,(gen.position.y+fin.position.y+.05)*wsNow,0);
+    visit.apply(camera,doll,panelCamera,panelAim,landing,reduced);
+    if(!visit.active){
+     camFollow.copy(savedFollow);camAim.copy(savedAim);followInit=savedFollowInit;firstPerson=savedFirstPerson;
+     houseCb.current?.({index:-1,name:'the coordinator',prompt:true});
+    }
+   }
 
    // snap the grid to whole cells under the player so it never appears to end
    grid.position.x=Math.round(doll.position.x);
    grid.position.z=Math.round(doll.position.z);
-   gridMat.opacity=blend*0.30;
+   gridMat.opacity=blend*0.30*(1-panelBlend*.92);
    const ws=1+blend*0.55;               // the site swells as you drop into it
    world.scale.setScalar(ws);
    grid.visible=blend>0.01;
    credits.root.visible=blend>0.05;
    credits.root.scale.setScalar(0.8+blend*0.2);
-   doll.visible=blend>0.02&&!(firstPerson&&blend>0.85);
+   doll.visible=blend>0.02&&(inspecting||!(firstPerson&&blend>0.85));
    doll.scale.setScalar(0.55+blend*0.45);
 
    // current travelling along the wires: scroll the stripe toward the load
@@ -538,33 +622,40 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
     const accentNow=cssColor('--accent','#3E7C84');
     const webNow=cssColor('--truss-logo-web','#698F93');
     interiors.forEach((it,i)=>{
-     const b=budgetRef.current?.[i]??560;
-     applyAllocation(it.appliances,b,accentNow,webNow);
-     it.agent.set('agent '+'ABC'[i],[b+' W granted',FLOORS[i]+' W floor']);
+     const profile=SITE_MEMBERS[i];
+     const b=budgetRef.current?.[i]??profile.floor;
+     const got=applyAllocation(it.appliances,profile,b,WANTS[profile.id],accentNow,webNow);
+     const drawn=Object.values(got).reduce((x,y)=>x+y,0);
+     // stranded watts are real: a binary load whose whole step will not fit is
+     // skipped, so the home is allowed more than it can reach
+     it.agent.set('agent '+profile.name,
+      [b+' W proposed', drawn<b ? drawn+' W projected · '+(b-drawn)+' W stranded'
+                               : profile.floor+' W floor']);
     });
    }
 
-   genLabel.sprite.visible=blend>0.06;
+   if(capRef.current!==lastCap){lastCap=capRef.current;genLabel.set('coordinator',[lastCap+' W example supply']);}
+   genLabel.sprite.visible=blend>0.06&&panelBlend<.1;
    (genLabel.sprite.material as THREE.SpriteMaterial).opacity=Math.min(1,blend*1.4);
 
    if(mixer) mixer.update(dt);
    renderer.render(scene,camera);
   };
-  tick(performance.now());
-
   const resize=()=>{
    const w=Math.max(1,el.clientWidth||420), h=Math.max(1,el.clientHeight||420);
    renderer.setSize(w,h);
    camera.aspect=w/h; camera.updateProjectionMatrix();
   };
   resize();
+  tick(performance.now());
   const ro=new ResizeObserver(resize); ro.observe(el);
   const themeWatch=new MutationObserver(paint);
   themeWatch.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
   return ()=>{
+   disposed=true;coordinatorTheme.disconnect();coordinator.dispose();genLabel.dispose();
    cancelAnimationFrame(raf); ro.disconnect(); themeWatch.disconnect();
-   window.clearTimeout(holdTimer);
+   window.clearTimeout(holdTimer); window.clearTimeout(revealTimer);
    renderer.domElement.removeEventListener('wheel',onWheel);
    renderer.domElement.removeEventListener('pointerdown',onDown);
    removeEventListener('pointermove',onPointerMove);
@@ -582,5 +673,9 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets}:{
  },[]);
 
  return <div className="site-scene" ref={host} role="img"
-   aria-label="Three homes connected to one shared generator. Press F to walk the site."/>;
+   aria-label={panelVisible?'Inside the coordinator: 3D allocator, validator, reservation gate, MQTT broker, wiring and curved information panels. E or Escape to step out.':'Three homes connected to one shared generator. Press F to walk the site, then E near the coordinator.'}>
+   {panelVisible&&<span className="sr-only">Three-home example; no live leases. Supply {cap} W. Proposed budgets: {SITE_MEMBERS.map((m,i)=>`${m.name} ${budgets?.[i]??m.floor} W`).join(', ')}. The reservation gate admits each request against outstanding authority. Lease TTL 6 seconds; recovery hold 6.4 seconds.</span>}
+   {loading==='loading'&&<span className="site-scene-status" role="status">Loading the site model…</span>}
+   {loading==='fallback'&&<span className="site-scene-fallback" role="status">Some models unavailable · simplified view</span>}
+  </div>;
 }

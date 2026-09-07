@@ -1,45 +1,21 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {assign,type DeviceSpec,type MemberProfile} from './trussModel';
 
 /** Asset loading and interior construction for the site scene.
  *  Shells and the character are downloaded CC0 models; interiors are authored
  *  because they have to open up and hold placed appliances and wiring. */
 
+/** The four device roles every home runs. Envelopes differ per home and come
+ *  from trussModel, which is the port of config/member-*.json. */
 export type DeviceId='protected-load'|'router'|'charger'|'heater';
-
-export interface DeviceSpec{
- id:DeviceId; label:string; baseline:number; max:number;
- policy:'protected'|'flexible'; priority:number;
-}
-
-/** Verbatim from config/member-*.json — the devices the backend actually runs. */
-export const DEVICES:DeviceSpec[]=[
- {id:'protected-load',label:'Protected load',baseline:120,max:120,policy:'protected',priority:100},
- {id:'router',label:'Router + lighting',baseline:40,max:40,policy:'protected',priority:90},
- {id:'charger',label:'Charger',baseline:0,max:180,policy:'flexible',priority:60},
- {id:'heater',label:'Heater',baseline:0,max:650,policy:'flexible',priority:20}
-];
-
-/** Mirror of src/truss/local_policy.py assign(): baselines first, then the
- *  surplus down the flexible devices by descending priority. */
-export function assign(budget:number):Record<DeviceId,number>{
- const out={} as Record<DeviceId,number>;
- let remaining=budget;
- for(const d of DEVICES){ out[d.id]=d.baseline; remaining-=d.baseline; }
- for(const d of [...DEVICES].sort((a,b)=>b.priority-a.priority)){
-  if(d.policy!=='flexible') continue;
-  const extra=Math.max(0,Math.min(remaining,d.max-d.baseline));
-  out[d.id]+=extra; remaining-=extra;
- }
- return out;
-}
 
 const loader=new GLTFLoader();
 const load=(url:string)=>new Promise<THREE.Group>((res,rej)=>
  loader.load(url,g=>res(g.scene),undefined,rej));
 
 export interface Kit{
- shells:THREE.Group[];
+ shells:(THREE.Group|null)[];
  robot:THREE.Group|null;
  clips:THREE.AnimationClip[];
  appliances:Partial<Record<DeviceId,THREE.Group>>[];
@@ -78,10 +54,10 @@ export async function loadKit():Promise<Kit>{
   new Promise<{scene:THREE.Group;animations:THREE.AnimationClip[]}>((res,rej)=>
    loader.load('/models/robot.glb',g=>res({scene:g.scene as THREE.Group,animations:g.animations}),undefined,rej))
  ]);
- const shells:THREE.Group[]=[];
+ const shells:(THREE.Group|null)[]=[];
  for(let i=0;i<shellUrls.length;i++){
   const r=results[i];
-  if(r.status==='fulfilled') shells.push(r.value as THREE.Group);
+  shells.push(r.status==='fulfilled'?r.value as THREE.Group:null);
  }
  const robotRes=results[shellUrls.length];
  let robot:THREE.Group|null=null, clips:THREE.AnimationClip[]=[];
@@ -89,19 +65,19 @@ export async function loadKit():Promise<Kit>{
   const v=robotRes.value as {scene:THREE.Group;animations:THREE.AnimationClip[]};
   robot=v.scene; clips=v.animations;
  }
+ // Load unique device assets concurrently; one slow asset no longer delays
+ // every subsequent request. Preserve the per-home slots on partial failure.
+ const urls=[...new Set(APPLIANCE_SETS.flatMap(set=>Object.values(set).map(a=>a.url)))];
+ const assets=await Promise.allSettled(urls.map(load));
  const cache=new Map<string,THREE.Group>();
- const appliances:Partial<Record<DeviceId,THREE.Group>>[]=[];
- for(const set of APPLIANCE_SETS){
+ assets.forEach((result,i)=>{if(result.status==='fulfilled')cache.set(urls[i],result.value);});
+ const appliances=APPLIANCE_SETS.map(set=>{
   const out:Partial<Record<DeviceId,THREE.Group>>={};
   for(const id of Object.keys(set) as DeviceId[]){
-   const url=set[id].url;
-   try{
-    if(!cache.has(url)) cache.set(url,await load(url));
-    out[id]=cache.get(url);
-   }catch{ /* box fallback */ }
+   const model=cache.get(set[id].url); if(model)out[id]=model;
   }
-  appliances.push(out);
- }
+  return out;
+ });
  return {shells,robot,clips,appliances};
 }
 
@@ -145,7 +121,7 @@ export interface Appliance{
 /** One home's interior: a floor, a meter post, and the four appliances with a
  *  wire running from each back to the meter. */
 export function buildInterior(colours:{floor:THREE.Color;wall:THREE.Color;accent:THREE.Color;muted:THREE.Color},
-                              agentName='HOME'){
+                              agentName:string,profile:MemberProfile){
  const root=new THREE.Group();
  root.name='interior';
 
@@ -167,7 +143,7 @@ export function buildInterior(colours:{floor:THREE.Color;wall:THREE.Color;accent
  const spots:[number,number][]=[[-.56,-.34],[.56,-.34],[-.56,.52],[.56,.52]];
  const appliances:Appliance[]=[];
 
- DEVICES.forEach((spec,i)=>{
+ profile.devices.forEach((spec,i)=>{
   const [x,z]=spots[i];
   const g=new THREE.Group(); g.position.set(x,0,z);
 
@@ -206,10 +182,10 @@ export function buildInterior(colours:{floor:THREE.Color;wall:THREE.Color;accent
  function useModels(models:Partial<Record<DeviceId,THREE.Group>>,setIndex=0){
   const set=APPLIANCE_SETS[setIndex%APPLIANCE_SETS.length];
   for(const a of appliances){
-   const src=models[a.spec.id];
+   const src=models[a.spec.id as DeviceId];
    if(!src) continue;
    const inst=src.clone(true);
-   const h=set[a.spec.id].height;
+   const h=set[a.spec.id as DeviceId].height;
    fitToHeight(inst,h);
    inst.rotation.y=(setIndex*0.7)+(a.spec.id==='charger'?Math.PI/2:0);
    a.body.visible=false;
@@ -222,8 +198,9 @@ export function buildInterior(colours:{floor:THREE.Color;wall:THREE.Color;accent
 
 /** Push an allocation into an interior: lamps light, wires brighten, shed
  *  flexible loads dim and go translucent. */
-export function applyAllocation(appliances:Appliance[],budget:number,accent:THREE.Color,muted:THREE.Color){
- const assigned=assign(budget);
+export function applyAllocation(appliances:Appliance[],profile:MemberProfile,budget:number,
+                                wanted:Set<string>,accent:THREE.Color,muted:THREE.Color){
+ const assigned=assign(profile,Math.max(budget,profile.floor),wanted);
  for(const a of appliances){
   const w=assigned[a.spec.id];
   a.watts=w;

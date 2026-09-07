@@ -1,41 +1,27 @@
 import {useState} from 'react';
 import SiteScene from '../components/SiteScene';
-import CoordinatorPanel from '../components/CoordinatorPanel';
-
-const FLOOR=[160,170,180];
-const NAMES=['A','B','C'];
+import {SITE_MEMBERS,WANTS,RESERVE_W,allocate,usefulFor} from '../components/trussModel';
 
 export default function Example(){
  const [cap,setCap]=useState(1800);
  const [mode,setMode]=useState<'overview'|'explore'>('overview');
  const [house,setHouse]=useState<{index:number;name:string;prompt?:boolean}|null>(null);
  const [panel,setPanel]=useState(false);
- const useful=[900,700,1100];
- const reserve=100;
- const floors=FLOOR.reduce((a,b)=>a+b,0);
- const spare=cap-reserve-floors;
- const feasible=spare>=0;
 
- let budgets=FLOOR.slice();
- if(feasible){
-  let pool=spare;
-  const head=useful.map((u,i)=>Math.max(0,u-FLOOR[i]));
-  const active=head.map((h,i)=>({i,h})).filter(x=>x.h>0).sort((a,b)=>a.h-b.h);
-  let level=0,n=active.length;
-  for(const {h} of active){
-   const cost=(h-level)*n;
-   if(cost>pool){ level+=pool/n; pool=0; break; }
-   pool-=cost; level=h; n--;
-  }
-  budgets=FLOOR.map((f,i)=>f+Math.floor(Math.min(head[i],level)));
- }
+ // exactly what a member publishes: its registered floor, and the floor plus
+ // every flexible step it is currently asking to run
+ const offers=SITE_MEMBERS.map(m=>
+  ({id:m.id,floor:m.floor,useful:usefulFor(m,WANTS[m.id])}));
+
+ // the same allocator the coordinator runs, on the same offers
+ const plan=allocate(offers,cap,RESERVE_W);
+ const budgets=SITE_MEMBERS.map(m=>plan.budgets[m.id]??m.floor);
 
  return <main className="example">
-  <SiteScene onMode={setMode} onHouse={setHouse} onPanel={setPanel} budgets={budgets}/>
-  {panel&&<CoordinatorPanel cap={cap} useful={useful} budgets={budgets} onClose={()=>setPanel(false)}/>}
-  <div className={'stage-controls'+(mode==='explore'?' walking':'')}>
+  <SiteScene onMode={setMode} onHouse={setHouse} onPanel={setPanel} budgets={budgets} cap={cap} panelOpen={panel}/>
+  <div className={'stage-controls'+(mode==='explore'?' walking':'')+(panel?' coordinator-active':'')}>
    <span className="stage-mode">{
-     panel ? 'Coordinator open · E to close'
+     panel ? 'Inside coordinator · E / Esc to step out · scroll to inspect'
      : house&&!house.prompt ? 'Inside home '+house.name+' · E to step out'
      : house?.prompt ? (house.index<0 ? 'E to open the coordinator' : 'E to enter home '+house.name)
      : mode==='explore' ? 'WASD move · V first person · F exit'
@@ -46,10 +32,10 @@ export default function Example(){
       onChange={e=>setCap(+e.target.value)}/>
     <b>{cap} W</b>
    </label>
-   <div className={'grants'+(feasible?'':' infeasible')}>
-    {feasible
-     ? NAMES.map((n,i)=><span key={n}><i>{n}</i>{budgets[i]} W</span>)
-     : <span className="short">infeasible · short {-spare} W</span>}
+   <div className={'grants'+(plan.feasible?'':' infeasible')}>
+    {plan.feasible
+     ? SITE_MEMBERS.map((m,i)=><span key={m.id}><i>{m.name}</i>{budgets[i]} W proposed</span>)
+     : <span className="short">infeasible · short {plan.deficit} W</span>}
    </div>
   </div>
  </main>;
