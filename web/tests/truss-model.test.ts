@@ -55,8 +55,8 @@ const offers=()=>SITE_MEMBERS.map(m=>
 describe('allocate() reproduces the Python allocator',()=>{
  // captured from `truss.allocator.allocate` on the same offers and reserve
  it.each([
-  [1800,{'member-a':665,'member-b':350,'member-c':685},0],
-  [3200,{'member-a':990,'member-b':350,'member-c':910},0],
+  [1800,{'member-a':556,'member-b':566,'member-c':576},2],
+  [3200,{'member-a':990,'member-b':1040,'member-c':1070},0],
   [900, {'member-a':256,'member-b':266,'member-c':276},2]
  ])('cap %i W splits as the backend does',(cap,budgets,remainder)=>{
   const p=allocate(offers(),cap as number,RESERVE_W);
@@ -70,6 +70,11 @@ describe('allocate() reproduces the Python allocator',()=>{
   expect(p.feasible).toBe(false);
   expect(p.deficit).toBe(50);
   expect(p.budgets).toEqual({});
+ });
+
+ it('uses the full configured demand that member_process publishes for every home',()=>{
+  for(const m of MEMBERS)expect(usefulFor(m,WANTS[m.id])).toBe(m.max);
+  expect(allocate(offers(),2400,RESERVE_W).budgets['member-b']).toBe(766);
  });
 
  it('never grants a home more than it asked for',()=>{
@@ -114,7 +119,7 @@ describe('assign() reproduces the Python local policy',()=>{
 
  it('leaves a device the home is not asking for at its baseline',()=>{
   const b=MEMBERS[1];
-  const got=assign(b,900,WANTS['member-b']);
+  const got=assign(b,900,new Set(['charger']));
   expect(got.heater).toBe(0);
   expect(got.charger).toBe(180);
  });

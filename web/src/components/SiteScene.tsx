@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import * as THREE from 'three';
 import {loadKit,fitToGround,buildInterior,applyAllocation,buildCreditsBoard,makeLabel,pulseTexture} from './houseKit';
+import {movementOnGround} from './movement';
 import {CoordinatorVisit} from './coordinatorVisit';
 import {buildCoordinatorInternals} from './coordinatorKit';
 import {SITE_MEMBERS,WANTS} from './trussModel';
@@ -16,15 +17,17 @@ function cssColor(name:string,fallback:string){
  *             level and you walk a small grey doll around the courtyard with
  *             WASD. F (or Esc) returns. The doll is built from primitives and
  *             squashes as it moves, rather than being a downloaded rig. */
-export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panelOpen:panelVisible=false}:{
+export default function SiteScene({onMode,onHouse,onPanel,budgets,feasible=true,cap=1800,panelOpen:panelVisible=false}:{
  onMode?:(m:'overview'|'explore')=>void;
  onHouse?:(h:{index:number;name:string;prompt?:boolean}|null)=>void;
  onPanel?:(open:boolean)=>void;
  budgets?:number[];
+ feasible?:boolean;
  cap?:number;
  panelOpen?:boolean;
 }){
  const [loading,setLoading]=useState<'loading'|'ready'|'fallback'>('loading');
+ const feasibleRef=useRef(feasible);feasibleRef.current=feasible;
  const capRef=useRef(cap); capRef.current=cap;
  const host=useRef<HTMLDivElement>(null);
  const modeCb=useRef(onMode); modeCb.current=onMode;
@@ -176,7 +179,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
   let current:THREE.AnimationAction|null=null;
   const interiors:ReturnType<typeof buildInterior>[]=[];
   const shellMats:THREE.Material[]=[];
-  let nearHouse=-1, inside=-1, insideBlend=0;
+  let nearHouse=-1, inside=-1, closingHouse=-1, insideBlend=0;
   let lastBudgets='';
   let nearCoord=false, panelOpen=false, panelBlend=0, panelZoom=1;
   const visit=new CoordinatorVisit();
@@ -207,14 +210,16 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
   let dragging=false, lastX=0,lastY=0, velY=0,velX=0;
   let heading=Math.PI, walkPhase=0;
   const vel=new THREE.Vector3();
+  const inputDirection=new THREE.Vector3();
   const keys=new Set<string>();
   const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const setMode=(m:'overview'|'explore')=>{
    if(mode===m) return;
+   keys.clear();vel.set(0,0,0);dragging=false;
    mode=m;
    if(m==='overview'&&document.pointerLockElement) document.exitPointerLock?.();
-   if(m==='overview'){ inside=-1; nearHouse=-1; nearCoord=false;
+   if(m==='overview'){ inside=-1; closingHouse=-1; insideBlend=0; nearHouse=-1; nearCoord=false;
     if(panelOpen){ panelOpen=false; panelCb.current?.(false); }
     houseCb.current?.(null); }
    if(m==='explore'){
@@ -292,11 +297,12 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
     return;
    }
    if(isTyping(e.target)) return;
+   if(mode==='explore'&&blendRaw<1&&k!=='f'&&k!=='escape')return;
    if(k==='f'){ e.preventDefault(); setMode(mode==='explore'?'overview':'explore'); return; }
    if(k==='escape'&&mode==='explore'){ setMode('overview'); return; }
-   if(k==='v'&&mode==='explore'){
+   if(k==='v'&&mode==='explore'&&inside<0&&insideBlend<.01){
     e.preventDefault();
-    firstPerson=!firstPerson;
+    firstPerson=!firstPerson;followInit=false;
     // keydown counts as a user gesture, so the lock request is allowed here
     if(firstPerson){
      const rq=renderer.domElement.requestPointerLock?.() as unknown;
@@ -309,26 +315,29 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
    if(k==='e'&&mode==='explore'){
     e.preventDefault();
     if(panelOpen){ panelOpen=false; panelCb.current?.(false); return; }
-    if(inside>=0){ inside=-1; houseCb.current?.(null); return; }
-    if(nearCoord){
+    if(inside>=0){ closingHouse=inside;inside=-1;keys.clear();vel.set(0,0,0);houseCb.current?.(null);return; }
+    if(nearCoord&&insideBlend<.01){
      visit.enter(camera,doll);
      savedFollow.copy(camFollow);savedAim.copy(camAim);savedFollowInit=followInit;savedFirstPerson=firstPerson;
+     dragging=false;vel.set(0,0,0);
      panelOpen=true;panelZoom=1;panelLook.x=panelLook.y=0;keys.clear();
      if(actIdle&&current!==actIdle){current?.fadeOut(.15);actIdle.reset().fadeIn(.15).play();current=actIdle;}
      if(document.pointerLockElement)document.exitPointerLock?.();
      panelCb.current?.(true);return;
     }
-    if(nearHouse>=0){ inside=nearHouse; houseCb.current?.({index:inside,name:'ABC'[inside]}); }
+    if(nearHouse>=0&&insideBlend<.01){ inside=nearHouse;closingHouse=inside;keys.clear();vel.set(0,0,0);dragging=false; houseCb.current?.({index:inside,name:'ABC'[inside]}); }
     return;
    }
    if('wasd'.includes(k)||k.startsWith('arrow')){ if(mode==='explore') e.preventDefault(); keys.add(k); }
   };
+  const onBlur=()=>{keys.clear();vel.set(0,0,0);dragging=false;};
+  addEventListener('blur',onBlur);
   const onKeyUp=(e:KeyboardEvent)=>{ keys.delete(e.key.toLowerCase()); };
 
   const ray=new THREE.Raycaster(); const ptr=new THREE.Vector2();
   let holdTimer=0;
   const onDown=(e:PointerEvent)=>{
-   if(visit.active)return;
+   if(visit.active||inside>=0||insideBlend>.01)return;
    const r=renderer.domElement.getBoundingClientRect();
    ptr.x=((e.clientX-r.left)/r.width)*2-1;
    ptr.y=-((e.clientY-r.top)/r.height)*2+1;
@@ -354,7 +363,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
     return;
    }
    if(mode==='explore'){
-    if(!dragging) return;
+    if(!dragging||locked||inside>=0||insideBlend>.01) return;
     const dx=e.clientX-lastX, dy=e.clientY-lastY;
     lastX=e.clientX; lastY=e.clientY;
     camYaw-=dx*0.005;
@@ -384,7 +393,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
    wasLocked=locked;
   };
   const onRawMove=(e:MouseEvent)=>{
-   if(!locked||visit.active) return;
+   if(!locked||visit.active||inside>=0||insideBlend>.01) return;
    camYaw-=e.movementX*0.0022;
    camPitch=Math.max(-0.55,Math.min(0.45,camPitch-e.movementY*0.0018));
   };
@@ -429,23 +438,23 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
    coordinator.update(capRef.current);coordinator.animate(now,panelBlend,reduced);
    siteLinks.forEach(link=>{link.visible=panelBlend<.15;});
    if(inspecting){keys.clear();vel.set(0,0,0);}
-   if(mode==='explore'&&!inspecting){
+   if(mode==='explore'&&!inspecting&&inside<0&&insideBlend<.01&&blendRaw===1){
     let f=0,r=0;
     if(keys.has('w')||keys.has('arrowup')) f+=1;
     if(keys.has('s')||keys.has('arrowdown')) f-=1;
     if(keys.has('d')||keys.has('arrowright')) r+=1;
     if(keys.has('a')||keys.has('arrowleft')) r-=1;
-    // rotate the input into world space through the CAMERA's yaw
-    const fx=Math.sin(camYaw), fz=Math.cos(camYaw);    // forward
-    const rx=-Math.cos(camYaw), rz=Math.sin(camYaw);   // right = forward x up
-    let mx=fx*f+rx*r, mz=fz*f+rz*r;
+    // Use the visible camera, including any follow smoothing, as the input
+    // basis. Backpedalling and strafing must never steer the camera themselves.
+    camera.getWorldDirection(inputDirection);
+    const input=movementOnGround(inputDirection,f,r,camYaw);
+    let mx=input.x,mz=input.z;
     const len=Math.hypot(mx,mz);
     if(len>0){
      mx/=len; mz/=len;
      vel.x+=(mx*3.1-vel.x)*Math.min(1,dt*9);
      vel.z+=(mz*3.1-vel.z)*Math.min(1,dt*9);
      heading=Math.atan2(mx,mz);
-     if(!dragging) camYaw+=Math.atan2(Math.sin(heading-camYaw),Math.cos(heading-camYaw))*Math.min(1,dt*1.4);
     } else {
      vel.x+=(0-vel.x)*Math.min(1,dt*8);
      vel.z+=(0-vel.z)*Math.min(1,dt*8);
@@ -556,14 +565,14 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
     sm.opacity=1-insideBlend*0.93;
     sm.depthWrite=insideBlend<0.5;
    }
-   if(inside>=0){
+   if(insideBlend>.001&&closingHouse>=0){
     // sit outside and above the shell looking down into the floor plan; sitting
     // at the house origin puts the camera inside the building's own geometry
-    const hp=houses[inside];
+    const hp=houses[closingHouse];
     const len=Math.hypot(hp.x,hp.z)||1;
     const hx=hp.x*wsNow, hz=hp.z*wsNow;
-    ePos.set(hx+(hp.x/len)*1.9*wsNow,2.05*wsNow,hz+(hp.z/len)*1.9*wsNow);
-    eLook.set(hx,0.38*wsNow,hz);
+    ePos.lerp(new THREE.Vector3(hx+(hp.x/len)*1.9*wsNow,2.05*wsNow,hz+(hp.z/len)*1.9*wsNow),insideBlend);
+    eLook.lerp(new THREE.Vector3(hx,0.38*wsNow,hz),insideBlend);
    }
 
    curY+=(targetY-curY)*0.08;
@@ -616,7 +625,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
     for(const a of it.appliances) a.pulseTex.offset.x=-flow*1.6;
 
    // push live allocations into the agent labels when they actually change
-   const bs=(budgetRef.current||[]).join(',');
+   const bs=String(feasibleRef.current)+(budgetRef.current||[]).join(',');
    if(bs!==lastBudgets&&interiors.length){
     lastBudgets=bs;
     const accentNow=cssColor('--accent','#3E7C84');
@@ -629,8 +638,9 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
      // stranded watts are real: a binary load whose whole step will not fit is
      // skipped, so the home is allowed more than it can reach
      it.agent.set('agent '+profile.name,
-      [b+' W proposed', drawn<b ? drawn+' W projected · '+(b-drawn)+' W stranded'
-                               : profile.floor+' W floor']);
+      feasibleRef.current?[b+' W proposed', drawn<b ? drawn+' W projected · '+(b-drawn)+' W stranded'
+                               : profile.floor+' W floor']
+      :['No feasible proposal',profile.floor+' W protected floor']);
     });
    }
 
@@ -653,7 +663,7 @@ export default function SiteScene({onMode,onHouse,onPanel,budgets,cap=1800,panel
   themeWatch.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
   return ()=>{
-   disposed=true;coordinatorTheme.disconnect();coordinator.dispose();genLabel.dispose();
+   disposed=true;removeEventListener('blur',onBlur);coordinatorTheme.disconnect();coordinator.dispose();genLabel.dispose();
    cancelAnimationFrame(raf); ro.disconnect(); themeWatch.disconnect();
    window.clearTimeout(holdTimer); window.clearTimeout(revealTimer);
    renderer.domElement.removeEventListener('wheel',onWheel);

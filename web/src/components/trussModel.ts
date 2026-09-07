@@ -97,17 +97,11 @@ export const MEMBERS:MemberProfile[]=[
 /** The three homes the 3D site draws. The console runs all five. */
 export const SITE_MEMBERS=MEMBERS.slice(0,3);
 
-/** Which flexible loads each home is currently asking to run. This is the only
- *  thing the scene invents — a real member derives it from what its appliances
- *  actually want right now — and it is what makes the three homes ask for
- *  different amounts instead of all publishing their registered maximum. */
-export const WANTS:Record<string,Set<string>>={
- 'member-a':new Set(['charger','heater']),   // wants everything: useful 990 W
- 'member-b':new Set(['charger']),            // charger only:     useful 350 W
- 'member-c':new Set(['heater']),             // heater only:      useful 910 W
- 'member-d':new Set(['charger','heater']),
- 'member-e':new Set(['charger'])
-};
+/** Match member_process.py: the current backend offers its full configured
+ * useful demand. Derive this from profiles so no house has a hidden demo cap. */
+export const WANTS:Record<string,Set<string>>=Object.fromEntries(
+ MEMBERS.map(m=>[m.id,new Set(m.devices.filter(d=>d.policy==='flexible').map(d=>d.id))])
+);
 
 export const SITE_ID='hostel-demo';
 export const RESERVE_W=100;      // config/run.json measurement_reserve_w

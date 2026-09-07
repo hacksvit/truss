@@ -7,7 +7,7 @@ import Chrome from './components/Chrome';
 
 function Stub({title}:{title:string}){return <main className="empty"><h2>{title}</h2><p>Not built yet. The shell, navigation and theming are in place; this page's content is the next piece of work.</p><p className="muted"><a href="/console">Console</a> · <a href="/lab">Lab</a></p></main>;}
 
-const OUT_MS=780;   // includes the 540ms cloud exit + 5 × 45ms stagger
+const OUT_MS=290;   // must stay in step with the tab-out stagger in chrome.css
 
 export default function App(){
  const [route,setRoute]=useState(location.pathname);
@@ -21,11 +21,7 @@ export default function App(){
    setLeaving(false); setRoute(href); scrollTo({top:0});
   };
 
-  const pop=()=>{
-   clearTimeout(timer.current);const path=location.pathname;
-   if(reduced()){swap(path,false);return;}
-   setLeaving(true);timer.current=window.setTimeout(()=>swap(path,false),OUT_MS);
-  };
+  const pop=()=>{ clearTimeout(timer.current); setLeaving(false); setRoute(location.pathname); };
   addEventListener('popstate',pop);
 
   const click=(e:MouseEvent)=>{

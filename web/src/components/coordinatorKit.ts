@@ -127,7 +127,7 @@ export function buildCoordinatorInternals(enclosure:THREE.MeshStandardMaterial){
  function paint(){if(disposed)return;const p=colors(),light=document.documentElement.dataset.theme==='light';for(const m of solid){const role=m.userData.role;m.color.set(role==='accent'?p.accent:role==='board'?(light?'#c4d8dc':'#14292f'):(light?'#a9b8c4':'#27313e'));m.emissive.set(role==='accent'?p.accent:'#000000');m.emissiveIntensity=role==='accent'?.12:0;}surfaces.forEach(s=>s.draw());}
  paint();document.fonts?.ready.then(()=>{if(!disposed)paint();});
  return {root,left,right,paint,update(value:number){if(cap!==value){cap=value;surfaces.forEach(s=>s.draw());}},
-  animate(now:number,open:number,reduced:boolean){lid.rotation.y=-open*1.7;left.visible=right.visible=title.visible=note.visible=open>.03;left.scale.setScalar(.85+.15*open);right.scale.copy(left.scale);for(const node of projections)node.visible=open>.03;for(const w of wires){w.dot.visible=open>.9&&(!w.down||cap>=610);w.dot.position.copy(w.curve.getPointAt(reduced?.5:(now*.00025+w.phase)%1));}},
+  animate(now:number,open:number,reduced:boolean){lid.rotation.y=-open*Math.PI*1.5;left.visible=right.visible=title.visible=note.visible=open>.03;left.scale.setScalar(.85+.15*open);right.scale.copy(left.scale);for(const node of projections)node.visible=open>.03;for(const w of wires){w.dot.visible=open>.9&&(!w.down||cap>=610);w.dot.position.copy(w.curve.getPointAt(reduced?.5:(now*.00025+w.phase)%1));}},
   dispose(){disposed=true;textures.forEach(t=>t.dispose());root.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m!==enclosure)m.dispose();});}});}
  };
 }

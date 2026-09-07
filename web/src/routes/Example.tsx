@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import CloudLayers from '../components/CloudLayers';
 import SiteScene from '../components/SiteScene';
 import {SITE_MEMBERS,WANTS,RESERVE_W,allocate,usefulFor} from '../components/trussModel';
 
@@ -13,12 +14,14 @@ export default function Example(){
  const offers=SITE_MEMBERS.map(m=>
   ({id:m.id,floor:m.floor,useful:usefulFor(m,WANTS[m.id])}));
 
- // the same allocator the coordinator runs, on the same offers
+ // The backend algorithm and offer policy, applied to this three-house example.
+ // The live console is a separate five-house run.
  const plan=allocate(offers,cap,RESERVE_W);
  const budgets=SITE_MEMBERS.map(m=>plan.budgets[m.id]??m.floor);
 
  return <main className="example">
-  <SiteScene onMode={setMode} onHouse={setHouse} onPanel={setPanel} budgets={budgets} cap={cap} panelOpen={panel}/>
+  <CloudLayers variant="example" hidden={mode==='explore'}/>
+  <SiteScene onMode={setMode} onHouse={setHouse} onPanel={setPanel} budgets={budgets} feasible={plan.feasible} cap={cap} panelOpen={panel}/>
   <div className={'stage-controls'+(mode==='explore'?' walking':'')+(panel?' coordinator-active':'')}>
    <span className="stage-mode">{
      panel ? 'Inside coordinator · E / Esc to step out · scroll to inspect'
