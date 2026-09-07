@@ -1,5 +1,4 @@
 import {useEffect,useRef,useState} from 'react';
-import {SnapshotProvider} from './state';
 import Showcase from './routes/Showcase';
 import Console from './routes/Console';
 import Lab from './routes/Lab';
@@ -50,7 +49,7 @@ export default function App(){
   };
  },[]);
 
- const page=route==='/console'?<SnapshotProvider><Console/></SnapshotProvider>
+ const page=route==='/console'?<Console/>
   :route==='/lab'?<Lab/>
   :route==='/info'?<Stub title="Info"/>
   :route==='/example'?<Example/>

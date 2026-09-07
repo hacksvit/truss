@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import SiteScene from '../components/SiteScene';
+import CoordinatorPanel from '../components/CoordinatorPanel';
 
 const FLOOR=[160,170,180];
 const NAMES=['A','B','C'];
@@ -7,6 +8,8 @@ const NAMES=['A','B','C'];
 export default function Example(){
  const [cap,setCap]=useState(1800);
  const [mode,setMode]=useState<'overview'|'explore'>('overview');
+ const [house,setHouse]=useState<{index:number;name:string;prompt?:boolean}|null>(null);
+ const [panel,setPanel]=useState(false);
  const useful=[900,700,1100];
  const reserve=100;
  const floors=FLOOR.reduce((a,b)=>a+b,0);
@@ -28,10 +31,14 @@ export default function Example(){
  }
 
  return <main className="example">
-  <SiteScene onMode={setMode}/>
+  <SiteScene onMode={setMode} onHouse={setHouse} onPanel={setPanel} budgets={budgets}/>
+  {panel&&<CoordinatorPanel cap={cap} useful={useful} budgets={budgets} onClose={()=>setPanel(false)}/>}
   <div className={'stage-controls'+(mode==='explore'?' walking':'')}>
-   <span className="stage-mode">{mode==='explore'
-     ? 'WASD move · V first person + mouse look · F exit'
+   <span className="stage-mode">{
+     panel ? 'Coordinator open · E to close'
+     : house&&!house.prompt ? 'Inside home '+house.name+' · E to step out'
+     : house?.prompt ? (house.index<0 ? 'E to open the coordinator' : 'E to enter home '+house.name)
+     : mode==='explore' ? 'WASD move · V first person · F exit'
      : 'F or hold the generator to walk the site'}</span>
    <label className="cap">
     <span>supply</span>
