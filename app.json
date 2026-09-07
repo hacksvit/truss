@@ -1,0 +1,22 @@
+{
+  "name": "truss",
+  "description": "Shared-capacity protocol demo: website, live simulation, mock preview, and Lab.",
+  "stack": "heroku-24",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku-community/apt"
+    },
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ]
+}

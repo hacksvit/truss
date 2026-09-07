@@ -200,7 +200,8 @@ supervisor can clean up its children.
 
 > `npm --prefix web run build` typechecks and emits `web/dist`. The development setup relies
 > on Vite's proxies. For a production build with all services on one URL, use the
-> [Heroku hosting setup](docs/heroku.md), which includes its own combined server.
+> [Heroku hosting setup](docs/heroku.md). Dashboard apps need the root `Procfile` (a
+> `web` dyno); `heroku.yml` is only used if the app stack is `container`.
 
 ## The 90-second demo
 

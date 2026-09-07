@@ -1,0 +1,13 @@
+{
+  "name": "truss-host",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix web ci && npm --prefix web run build"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "cacheDirectories": [
+    "web/node_modules"
+  ]
+}
