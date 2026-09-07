@@ -108,6 +108,9 @@ multiple workers: the broker and virtual-home processes belong to that one
 server process. Heroku may set `WEB_CONCURRENCY` automatically, but the explicit
 `--workers 1` in `Procfile` takes precedence.
 
+The Apt buildpack places Mosquitto at `/app/.apt/usr/sbin/mosquitto`; the
+`Procfile` supplies that location, and the runtime also discovers it directly.
+
 ## Optional local verification
 
 ```bash

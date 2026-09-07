@@ -18,6 +18,19 @@ from .authority_store import AuthorityStore
 def broker_binary():
     candidate = os.environ.get("TRUSS_MOSQUITTO") or shutil.which("mosquitto")
     if not candidate:
+        # The Heroku Apt buildpack unpacks packages beneath /app/.apt. Its
+        # profile script adds usr/bin, but Mosquitto itself is installed in
+        # usr/sbin and therefore is not found by shutil.which().
+        apt_roots = (Path.cwd() / ".apt", Path("/app/.apt"), Path.home() / ".apt")
+        for root in apt_roots:
+            for directory in ("usr/sbin", "usr/bin"):
+                packaged = root / directory / "mosquitto"
+                if packaged.is_file():
+                    candidate = str(packaged)
+                    break
+            if candidate:
+                break
+    if not candidate:
         local = Path.home() / ".cache/truss-deps/arch/usr/bin/mosquitto"
         if local.exists():
             candidate = str(local)
@@ -26,6 +39,19 @@ def broker_binary():
             "Mosquitto unavailable. Install it or set TRUSS_MOSQUITTO; no mock fallback."
         )
     return Path(candidate).resolve()
+
+
+def broker_password_binary(broker):
+    """Find mosquitto_passwd next to a system or Apt-buildpack broker."""
+    candidates = (
+        broker.parent / "mosquitto_passwd",
+        broker.parent.parent / "bin" / "mosquitto_passwd",
+        broker.parent.parent / "sbin" / "mosquitto_passwd",
+    )
+    return next(
+        (path for path in candidates if path.is_file()),
+        Path(shutil.which("mosquitto_passwd") or ""),
+    )
 
 
 class TrussRun:
@@ -84,9 +110,7 @@ class TrussRun:
             "".join(f"{name}:{password}\n" for name, password in credentials.items())
         )
         passwords.chmod(0o600)
-        passwd = self.binary.parent / "mosquitto_passwd"
-        if not passwd.exists():
-            passwd = Path(shutil.which("mosquitto_passwd") or "")
+        passwd = broker_password_binary(self.binary)
         result = subprocess.run(
             [str(passwd), "-U", str(passwords)],
             env=self.environment,
