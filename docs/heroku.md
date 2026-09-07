@@ -52,6 +52,11 @@ heroku buildpacks:add --index 3 heroku/python
 Then push again. In the Dashboard: Settings → Buildpacks, same three URLs in
 that order.
 
+If logs show `Website build missing`, the Node buildpack did not compile
+`web/dist` (Python-only apps skip it, and `web/dist` is gitignored). Confirm
+the three buildpacks above, then redeploy. `bin/post_compile` builds the
+website during slug compile and fails the deploy if `npm` is missing.
+
 ## Container stack (Docker)
 
 Cedar apps on the **container** stack build `Dockerfile` from `heroku.yml`.

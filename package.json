@@ -2,7 +2,8 @@
   "name": "truss-host",
   "private": true,
   "scripts": {
-    "build": "npm --prefix web ci && npm --prefix web run build"
+    "build": "npm --prefix web ci --include=dev && npm --prefix web run build",
+    "heroku-postbuild": "npm --prefix web ci --include=dev && npm --prefix web run build"
   },
   "engines": {
     "node": "22.x"

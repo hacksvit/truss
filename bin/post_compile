@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "-----> Missing npm. Add buildpacks in this order before deploying:"
+  echo "       heroku-community/apt, heroku/nodejs, heroku/python"
+  exit 1
+fi
+
+# Vite and TypeScript live in web/devDependencies. Heroku sets NODE_ENV=production
+# and would otherwise skip them, leaving web/dist empty at dyno boot.
+export NPM_CONFIG_PRODUCTION=false
+export NODE_ENV=development
+
+echo "-----> Building website into web/dist"
+npm --prefix web ci --include=dev
+npm --prefix web run build
+
+if [ ! -f web/dist/index.html ]; then
+  echo "-----> web/dist/index.html was not produced"
+  exit 1
+fi

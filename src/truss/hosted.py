@@ -22,7 +22,11 @@ def create_hosted_app(config_dir=None, dist=None, runtime_root=None, broker_port
     runtime_root = runtime_root or os.getenv("TRUSS_RUNTIME_ROOT", "/tmp/truss-runtime")
     broker_port = broker_port or int(os.getenv("TRUSS_BROKER_PORT", "18883"))
     if not (dist / "index.html").is_file():
-        raise RuntimeError("Website build missing; run npm --prefix web run build first.")
+        raise RuntimeError(
+            "Website build missing; run npm --prefix web run build first. "
+            "On Heroku, use buildpacks heroku-community/apt, heroku/nodejs, "
+            "then heroku/python so web/dist is compiled into the slug."
+        )
     website = Starlette(routes=[Mount("/", app=StaticFiles(directory=dist))])
     backends = {}
 
